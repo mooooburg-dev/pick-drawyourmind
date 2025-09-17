@@ -36,10 +36,5 @@ jobs:
           COUPANG_PARTNERS_PASSWORD: ${{ secrets.COUPANG_PARTNERS_PASSWORD }}
           NEXT_PUBLIC_SITE_URL: ${{ secrets.NEXT_PUBLIC_SITE_URL }}
         run: |
-          # API 엔드포인트 호출하여 크롤링 실행
-          curl -X POST http://localhost:3000/api/crawl &
-          # Next.js 개발 서버 실행
-          npm run build
-          npm start &
-          sleep 10
-          curl -X POST http://localhost:3000/api/crawl || echo "Crawl completed"
+          # 직접 크롤링 스크립트 실행
+          npm run crawl
