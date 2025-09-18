@@ -1,0 +1,204 @@
+# Cursor Rules for Pick - 쿠팡 파트너스 기획전 갤러리
+
+## 🎯 프로젝트 개요
+Next.js 15 + TypeScript + Tailwind CSS + Supabase를 사용한 쿠팡 파트너스 기획전 갤러리 웹사이트
+
+## 📋 커밋 메시지 규칙
+
+### 기본 형식
+```
+<gitmoji> <type>: <description>
+```
+
+### Gitmoji 타입별 한글 커밋 메시지
+- ✨ feat: 새로운 기능 추가
+- 🐛 fix: 버그 수정
+- 📝 docs: 문서 수정
+- 💄 style: 스타일 변경 (코드 포맷팅, 세미콜론 누락 등)
+- ♻️ refactor: 코드 리팩터링
+- ⚡️ perf: 성능 개선
+- ✅ test: 테스트 추가 또는 수정
+- 🔧 chore: 빌드 과정 또는 보조 도구 변경
+- 🚀 deploy: 배포 관련
+- 🔒 security: 보안 관련
+- 🗃️ database: 데이터베이스 관련
+- 🤖 ai: AI/OpenAI 관련
+- 🕷️ crawl: 크롤링 관련
+- 🎨 ui: UI/UX 개선
+- 📱 responsive: 반응형 디자인
+- 🔍 seo: SEO 최적화
+- 🌐 i18n: 국제화
+- ⬆️ upgrade: 의존성 업그레이드
+- ⬇️ downgrade: 의존성 다운그레이드
+- 📦 package: 패키지 관련
+- 🚨 lint: 린터 경고 수정
+- 🔥 remove: 코드 또는 파일 삭제
+- 💥 breaking: 중대한 변경사항
+- 🎉 init: 프로젝트 초기화
+- 🔖 release: 릴리즈/버전 태그
+- 🚧 wip: 작업 중 (Work in Progress)
+- 💚 ci: CI 빌드 수정
+- 📈 analytics: 분석 또는 추적 코드 추가
+- ⏪ revert: 변경사항 되돌리기
+
+### 커밋 메시지 예시
+```
+✨ feat: 쿠팡 파트너스 기획전 자동 크롤링 기능 추가
+🐛 fix: 갤러리 이미지 로딩 오류 수정
+📝 docs: README에 설치 가이드 추가
+💄 style: 갤러리 카드 디자인 개선
+♻️ refactor: API 라우트 구조 정리
+⚡️ perf: 이미지 lazy loading 최적화
+🕷️ crawl: Playwright 크롤러 안정성 개선
+🤖 ai: OpenAI 블로그 생성 로직 개선
+🗃️ database: Supabase 스키마 업데이트
+🎨 ui: 모바일 반응형 레이아웃 개선
+🔧 chore: Next.js 15 업그레이드
+🚀 deploy: Vercel 배포 설정 추가
+```
+
+## 🛠️ 코딩 규칙
+
+### TypeScript/JavaScript
+- **타입 안전성**: 모든 변수와 함수에 명시적 타입 지정
+- **네이밍**: camelCase 사용, 컴포넌트는 PascalCase
+- **함수**: 화살표 함수 선호, async/await 사용
+- **에러 핸들링**: try-catch 블록 필수, 의미있는 에러 메시지
+
+### React/Next.js
+- **컴포넌트**: 함수형 컴포넌트 사용
+- **Hooks**: React 18+ 기능 활용 (useCallback, useMemo 적절히 사용)
+- **App Router**: Next.js 13+ App Router 패턴 준수
+- **서버 컴포넌트**: 기본적으로 서버 컴포넌트, 필요시에만 'use client'
+- **메타데이터**: SEO를 위한 메타데이터 API 활용
+
+### 스타일링
+- **Tailwind CSS**: 유틸리티 클래스 우선 사용
+- **반응형**: 모바일 퍼스트 디자인
+- **다크모드**: 다크모드 지원 고려
+- **접근성**: ARIA 속성, 시맨틱 HTML 사용
+
+### 데이터베이스 (Supabase)
+- **타입 안전성**: Supabase 타입 생성 및 활용
+- **RLS**: Row Level Security 정책 적용
+- **성능**: 적절한 인덱스 및 쿼리 최적화
+
+### API 설계
+- **RESTful**: REST 원칙 준수
+- **에러 처리**: 일관된 에러 응답 형식
+- **검증**: Zod 등을 활용한 입력값 검증
+- **보안**: 인증/인가 로직 필수
+
+### 크롤링 (Playwright)
+- **안정성**: 네트워크 오류, 타임아웃 처리
+- **효율성**: 병렬 처리, 중복 방지
+- **로깅**: 상세한 크롤링 로그 기록
+
+### AI (OpenAI)
+- **토큰 관리**: 토큰 사용량 최적화
+- **에러 처리**: API 한도, 네트워크 오류 대응
+- **품질**: 생성된 콘텐츠 품질 검증
+
+## 📁 파일 구조 규칙
+
+```
+/app                    # Next.js App Router
+  /api                  # API 라우트
+  /blog                 # 블로그 페이지
+  /admin                # 관리자 페이지
+  globals.css           # 전역 스타일
+  layout.tsx            # 루트 레이아웃
+  page.tsx              # 홈 페이지
+
+/lib                    # 유틸리티 및 설정
+  supabase.ts           # Supabase 클라이언트
+  openai.ts             # OpenAI 설정
+  crawler.ts            # 크롤러 로직
+
+/scripts                # 스크립트 파일
+/public                 # 정적 파일
+```
+
+## 🔧 개발 도구 설정
+
+### ESLint
+- Next.js ESLint 설정 사용
+- TypeScript 규칙 적용
+- 접근성 규칙 포함
+
+### Git
+- 커밋 전 린트 검사
+- 의미있는 커밋 메시지
+- 브랜치 네이밍: feature/, fix/, hotfix/
+
+## 🚀 성능 최적화
+
+### 이미지
+- Next.js Image 컴포넌트 사용
+- WebP 포맷 우선
+- Lazy loading 적용
+
+### 번들
+- Dynamic import 활용
+- Code splitting 적용
+- Tree shaking 최적화
+
+### 캐싱
+- Next.js 캐싱 전략 활용
+- Supabase 쿼리 캐싱
+- CDN 활용
+
+## 🔒 보안 규칙
+
+### 환경변수
+- 민감한 정보는 환경변수로 관리
+- 클라이언트/서버 환경변수 구분
+- .env.example 파일 유지
+
+### 인증/인가
+- Supabase Auth 활용
+- JWT 토큰 검증
+- CORS 설정
+
+### 데이터 검증
+- 입력값 sanitization
+- SQL injection 방지
+- XSS 방지
+
+## 📊 모니터링 및 로깅
+
+### 로깅
+- 구조화된 로그 형식
+- 에러 레벨 구분
+- 크롤링 상태 추적
+
+### 성능
+- Core Web Vitals 모니터링
+- 크롤링 성능 추적
+- API 응답 시간 측정
+
+## 🧪 테스트 전략
+
+### 단위 테스트
+- 유틸리티 함수 테스트
+- API 엔드포인트 테스트
+- 컴포넌트 렌더링 테스트
+
+### 통합 테스트
+- 크롤링 워크플로우 테스트
+- 데이터베이스 연동 테스트
+- AI 생성 콘텐츠 품질 테스트
+
+## 📱 반응형 디자인
+
+### 브레이크포인트
+- Mobile: 320px - 768px
+- Tablet: 768px - 1024px
+- Desktop: 1024px+
+
+### 터치 최적화
+- 충분한 터치 영역
+- 스와이프 제스처 지원
+- 모바일 네비게이션
+
+이 규칙들을 따라 일관되고 품질 높은 코드를 작성해주세요.

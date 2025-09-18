@@ -181,7 +181,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               {post.tags?.map((tag: string, index: number) => (
                 <span
                   key={index}
-                  className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full"
+                  className="px-3 py-1 bg-blue-100 text-blue-600 text-sm rounded-full whitespace-nowrap"
                 >
                   {tag}
                 </span>
