@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BlogPost } from '@/lib/supabase';
@@ -10,13 +10,7 @@ export default function BlogPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    fetchBlogPosts();
-    // Update page metadata for SEO
-    updatePageMetadata();
-  }, []);
-
-  const updatePageMetadata = () => {
+  const updatePageMetadata = useCallback(() => {
     if (typeof window === 'undefined') return;
 
     // Update document title
@@ -41,7 +35,7 @@ export default function BlogPage() {
 
     // Canonical URL
     updateLinkTag('canonical', window.location.href);
-  };
+  }, []);
 
   const updateMetaTag = (name: string, content: string, attribute: string = 'name') => {
     let meta = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement;
@@ -62,6 +56,12 @@ export default function BlogPage() {
     }
     link.href = href;
   };
+
+  useEffect(() => {
+    fetchBlogPosts();
+    // Update page metadata for SEO
+    updatePageMetadata();
+  }, [updatePageMetadata]);
 
   const fetchBlogPosts = async () => {
     try {

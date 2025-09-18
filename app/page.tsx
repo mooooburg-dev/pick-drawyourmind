@@ -35,16 +35,7 @@ export default function Home() {
     }
   }, [selectedCategory]);
 
-  useEffect(() => {
-    fetchCampaigns();
-  }, [fetchCampaigns]);
-
-  useEffect(() => {
-    // Update homepage metadata for SEO when category changes
-    updateHomeMetadata();
-  }, [selectedCategory]);
-
-  const updateHomeMetadata = () => {
+  const updateHomeMetadata = useCallback(() => {
     if (typeof window === 'undefined') return;
 
     // Update document title based on selected category
@@ -80,7 +71,7 @@ export default function Home() {
 
     // Canonical URL
     updateLinkTag('canonical', window.location.href);
-  };
+  }, [selectedCategory]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const updateMetaTag = (name: string, content: string, attribute: string = 'name') => {
     let meta = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement;
@@ -101,6 +92,15 @@ export default function Home() {
     }
     link.href = href;
   };
+
+  useEffect(() => {
+    fetchCampaigns();
+  }, [fetchCampaigns]);
+
+  useEffect(() => {
+    // Update homepage metadata for SEO when category changes
+    updateHomeMetadata();
+  }, [selectedCategory, updateHomeMetadata]);
 
   const categories = [
     { value: 'all', label: '전체' },

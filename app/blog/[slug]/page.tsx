@@ -80,7 +80,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   }, []);
 
   const updateJsonLD = (post: BlogPostWithCampaign) => {
-    const structuredData = {
+    const structuredData: Record<string, unknown> = {
       '@context': 'https://schema.org',
       '@type': 'BlogPosting',
       headline: post.title,
