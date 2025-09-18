@@ -1,8 +1,22 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import { Campaign, BlogPost } from '@/lib/supabase';
+
+// TinyMCE 에디터를 동적으로 로드 (SSR 방지)
+const Editor = dynamic(
+  () => import('@tinymce/tinymce-react').then((mod) => mod.Editor),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="animate-pulse bg-gray-200 h-96 rounded-md">
+        에디터 로딩 중...
+      </div>
+    ),
+  }
+);
 
 interface BlogPostWithCampaign extends BlogPost {
   campaigns?: Campaign;
@@ -629,165 +643,128 @@ function BlogManagement({
     meta_description: '',
     is_published: true,
   });
-  const [isPreview, setIsPreview] = useState(false);
 
   useEffect(() => {
     if (editingPost) {
       setEditForm({
         title: editingPost.title || '',
-        content: convertFromHtml(editingPost.content || ''),
+        content: editingPost.content || '', // HTML 콘텐츠를 그대로 사용
         excerpt: editingPost.excerpt || '',
         tags: editingPost.tags || [],
         meta_description: editingPost.meta_description || '',
         is_published: editingPost.is_published ?? true,
       });
-      setIsPreview(false); // 편집 모드로 시작
     }
   }, [editingPost]);
 
   const handleSave = () => {
-    // 에디터 내용을 HTML로 변환하여 저장
-    const htmlContent = convertToHtml(editForm.content);
+    // WYSIWYG 에디터의 HTML 콘텐츠를 그대로 저장
     onSavePost({
       ...editForm,
-      content: htmlContent,
+      content: editForm.content, // HTML 콘텐츠를 그대로 저장
     });
   };
 
-  // 에디터 기능 함수들
-  const insertFormatting = useCallback(
-    (format: string, text?: string) => {
-      const textarea = document.getElementById(
-        'content-editor'
-      ) as HTMLTextAreaElement;
-      if (!textarea) return;
+  // TinyMCE 에디터 설정 (React 방식)
+  const editorConfig = {
+    // 기본 설정
+    height: 600,
+    menubar: false,
 
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const selectedText = textarea.value.substring(start, end);
+    // 플러그인 (프리미엄 기능 포함)
+    plugins: [
+      // 코어 편집 기능
+      'anchor',
+      'autolink',
+      'charmap',
+      'codesample',
+      'emoticons',
+      'link',
+      'lists',
+      'media',
+      'searchreplace',
+      'table',
+      'visualblocks',
+      'wordcount',
 
-      let replacement = '';
+      // 프리미엄 기능 (2025년 10월 2일까지 무료 체험)
+      'checklist',
+      'mediaembed',
+      'casechange',
+      'formatpainter',
+      'pageembed',
+      'a11ychecker',
+      'tinymcespellchecker',
+      'permanentpen',
+      'powerpaste',
+      'advtable',
+      'advcode',
+      'advtemplate',
+      'ai',
+      'uploadcare',
+      'mentions',
+      'tinycomments',
+      'tableofcontents',
+      'footnotes',
+      'mergetags',
+      'autocorrect',
+      'typography',
+      'inlinecss',
+      'markdown',
+      'importword',
+      'exportword',
+      'exportpdf',
+    ],
 
-      switch (format) {
-        case 'bold':
-          replacement = `**${selectedText || text || '굵은 텍스트'}**`;
-          break;
-        case 'italic':
-          replacement = `*${selectedText || text || '기울임 텍스트'}*`;
-          break;
-        case 'underline':
-          replacement = `<u>${selectedText || text || '밑줄 텍스트'}</u>`;
-          break;
-        case 'link':
-          const url = prompt('링크 URL을 입력하세요:');
-          if (url) {
-            replacement = `[${selectedText || '링크 텍스트'}](${url})`;
-          } else {
-            return;
-          }
-          break;
-        case 'heading1':
-          replacement = `# ${selectedText || '제목 1'}`;
-          break;
-        case 'heading2':
-          replacement = `## ${selectedText || '제목 2'}`;
-          break;
-        case 'heading3':
-          replacement = `### ${selectedText || '제목 3'}`;
-          break;
-        case 'list':
-          replacement = `- ${selectedText || '목록 항목'}`;
-          break;
-        case 'code':
-          replacement = `\`${selectedText || '코드'}\``;
-          break;
-        case 'quote':
-          replacement = `> ${selectedText || '인용문'}`;
-          break;
-        default:
-          return;
-      }
+    // 향상된 툴바
+    toolbar:
+      'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | ' +
+      'link media table mergetags | addcomment showcomments | spellcheckdialog a11ycheck typography uploadcare | ' +
+      'align lineheight | checklist numlist bullist indent outdent | emoticons charmap | removeformat',
 
-      const newContent =
-        textarea.value.substring(0, start) +
-        replacement +
-        textarea.value.substring(end);
+    // 스타일링
+    content_style:
+      'body { font-family: system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.6; }',
+    skin: 'oxide',
+    content_css: 'default',
 
-      setEditForm({ ...editForm, content: newContent });
+    // 브랜딩 제거
+    branding: false,
+    promotion: false,
 
-      // 커서 위치 조정
-      setTimeout(() => {
-        textarea.focus();
-        const newCursorPos = start + replacement.length;
-        textarea.setSelectionRange(newCursorPos, newCursorPos);
-      }, 0);
+    // 고급 기능 설정
+    tinycomments_mode: 'embedded',
+    tinycomments_author: '관리자',
+
+    // 병합 태그 설정
+    mergetags_list: [
+      { value: 'campaign.title', title: '캠페인 제목' },
+      { value: 'campaign.category', title: '캠페인 카테고리' },
+      { value: 'current.date', title: '현재 날짜' },
+    ],
+
+    // AI Assistant 설정 (추후 구현 가능)
+    ai_request: (request: any, respondWith: any) => {
+      respondWith.string(() =>
+        Promise.reject('AI Assistant 기능은 추후 구현 예정입니다.')
+      );
     },
-    [editForm]
-  );
 
-  // 키보드 단축키 처리
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey) {
-        switch (e.key.toLowerCase()) {
-          case 'b':
-            e.preventDefault();
-            insertFormatting('bold');
-            break;
-          case 'i':
-            e.preventDefault();
-            insertFormatting('italic');
-            break;
-          case 'u':
-            e.preventDefault();
-            insertFormatting('underline');
-            break;
-          case 'k':
-            e.preventDefault();
-            insertFormatting('link');
-            break;
-        }
-      }
-    };
+    // Uploadcare 설정
+    uploadcare_public_key: '8a183fb57904c815989c',
 
-    if (editingPost) {
-      document.addEventListener('keydown', handleKeyDown);
-      return () => {
-        document.removeEventListener('keydown', handleKeyDown);
-      };
-    }
-  }, [editingPost, insertFormatting]);
+    // 에디터 이벤트 설정
+    setup: (editor: any) => {
+      editor.on('change', () => {
+        const content = editor.getContent();
+        setEditForm((prev) => ({ ...prev, content }));
+      });
 
-  // HTML로 변환하는 간단한 함수 (마크다운 스타일을 HTML로)
-  const convertToHtml = (content: string) => {
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-      .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-      .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-      .replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>')
-      .replace(/^\- (.*$)/gim, '<li>$1</li>')
-      .replace(/\`(.*?)\`/g, '<code>$1</code>')
-      .replace(/\[([^\]]+)\]\(([^\)]+)\)/g, '<a href="$2">$1</a>')
-      .replace(/\n/g, '<br>');
-  };
-
-  // HTML을 마크다운 스타일로 변환하는 함수 (기존 콘텐츠 편집용)
-  const convertFromHtml = (content: string) => {
-    return content
-      .replace(/<strong>(.*?)<\/strong>/g, '**$1**')
-      .replace(/<em>(.*?)<\/em>/g, '*$1*')
-      .replace(/<h1>(.*?)<\/h1>/g, '# $1')
-      .replace(/<h2>(.*?)<\/h2>/g, '## $1')
-      .replace(/<h3>(.*?)<\/h3>/g, '### $1')
-      .replace(/<blockquote>(.*?)<\/blockquote>/g, '> $1')
-      .replace(/<li>(.*?)<\/li>/g, '- $1')
-      .replace(/<code>(.*?)<\/code>/g, '`$1`')
-      .replace(/<a href="([^"]+)">(.*?)<\/a>/g, '[$2]($1)')
-      .replace(/<br>/g, '\n')
-      .replace(/<br\/>/g, '\n')
-      .replace(/<u>(.*?)<\/u>/g, '<u>$1</u>'); // 밑줄은 그대로 유지
+      // 한국어 설정
+      editor.on('init', () => {
+        editor.getDoc().documentElement.lang = 'ko';
+      });
+    },
   };
 
   if (blogLoading) {
@@ -836,165 +813,14 @@ function BlogManagement({
               본문
             </label>
 
-            {/* 에디터 도구바 */}
-            <div className="border border-gray-300 rounded-t-md bg-gray-50 p-3 flex flex-wrap gap-2 shadow-sm">
-              <button
-                type="button"
-                onClick={() => insertFormatting('bold')}
-                className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 font-bold text-gray-700 shadow-sm transition-colors"
-                title="굵게 (Ctrl+B)"
-              >
-                B
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting('italic')}
-                className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 italic text-gray-700 shadow-sm transition-colors"
-                title="기울임 (Ctrl+I)"
-              >
-                I
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting('underline')}
-                className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 underline text-gray-700 shadow-sm transition-colors"
-                title="밑줄 (Ctrl+U)"
-              >
-                U
-              </button>
-
-              <div className="w-px bg-gray-300 mx-1"></div>
-
-              <button
-                type="button"
-                onClick={() => insertFormatting('heading1')}
-                className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 font-bold text-gray-700 shadow-sm transition-colors"
-                title="제목 1"
-              >
-                H1
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting('heading2')}
-                className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 font-bold text-gray-700 shadow-sm transition-colors"
-                title="제목 2"
-              >
-                H2
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting('heading3')}
-                className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 font-bold text-gray-700 shadow-sm transition-colors"
-                title="제목 3"
-              >
-                H3
-              </button>
-
-              <div className="w-px bg-gray-300 mx-1"></div>
-
-              <button
-                type="button"
-                onClick={() => insertFormatting('list')}
-                className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 text-gray-700 shadow-sm transition-colors"
-                title="목록"
-              >
-                • 목록
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting('link')}
-                className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 text-gray-700 shadow-sm transition-colors"
-                title="링크 (Ctrl+K)"
-              >
-                🔗
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting('code')}
-                className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 font-mono text-gray-700 shadow-sm transition-colors"
-                title="코드"
-              >
-                &lt;/&gt;
-              </button>
-              <button
-                type="button"
-                onClick={() => insertFormatting('quote')}
-                className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 text-gray-700 shadow-sm transition-colors"
-                title="인용"
-              >
-                &ldquo; &rdquo;
-              </button>
-
-              <div className="w-px bg-gray-300 mx-1"></div>
-
-              <button
-                type="button"
-                onClick={() => setIsPreview(!isPreview)}
-                className={`px-3 py-1.5 text-sm border border-gray-300 rounded hover:bg-gray-100 hover:border-gray-400 shadow-sm transition-colors ${
-                  isPreview
-                    ? 'bg-blue-100 text-blue-700 border-blue-300'
-                    : 'bg-white text-gray-700'
-                }`}
-                title="미리보기"
-              >
-                👁️ 미리보기
-              </button>
-            </div>
-
-            {/* 에디터 영역 */}
-            <div className="border-l border-r border-b border-gray-300 rounded-b-md">
-              {isPreview ? (
-                <div className="p-4 min-h-[400px] bg-white prose max-w-none text-gray-900">
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: convertToHtml(editForm.content),
-                    }}
-                    style={{
-                      fontSize: '14px',
-                      lineHeight: '1.6',
-                      color: '#111827',
-                    }}
-                  />
-                </div>
-              ) : (
-                <textarea
-                  id="content-editor"
-                  value={editForm.content}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, content: e.target.value })
-                  }
-                  rows={15}
-                  className="w-full px-4 py-3 border-0 rounded-b-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-white text-gray-900 placeholder-gray-400"
-                  style={{
-                    fontSize: '14px',
-                    lineHeight: '1.5',
-                    fontFamily:
-                      'ui-monospace, SFMono-Regular, "SF Mono", Consolas, "Liberation Mono", Menlo, monospace',
-                  }}
-                  placeholder="여기에 글을 작성하세요... 
-                  
-팁: 
-**굵게**, *기울임*, # 제목1, ## 제목2, ### 제목3
-- 목록 항목
-> 인용문
-`코드`
-[링크 텍스트](URL)"
-                />
-              )}
-            </div>
-
-            <div className="mt-3 text-xs text-gray-600 bg-gray-50 px-3 py-2 rounded border border-gray-200">
-              <span
-                className={`font-medium ${
-                  isPreview ? 'text-blue-600' : 'text-green-600'
-                }`}
-              >
-                {isPreview ? '📖 미리보기 모드' : '✏️ 편집 모드'}
-              </span>
-              <span className="text-gray-500 ml-2">
-                | 저장 시 HTML로 자동 변환됩니다
-              </span>
-            </div>
+            <Editor
+              apiKey="h0s32a78nzh54jnf17wkmljdv3j4zbp6njvkh5gviuy1uecp"
+              init={editorConfig}
+              value={editForm.content}
+              onEditorChange={(content) =>
+                setEditForm({ ...editForm, content })
+              }
+            />
           </div>
 
           <div>
