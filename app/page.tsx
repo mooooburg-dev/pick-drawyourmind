@@ -39,6 +39,69 @@ export default function Home() {
     fetchCampaigns();
   }, [fetchCampaigns]);
 
+  useEffect(() => {
+    // Update homepage metadata for SEO when category changes
+    updateHomeMetadata();
+  }, [selectedCategory]);
+
+  const updateHomeMetadata = () => {
+    if (typeof window === 'undefined') return;
+
+    // Update document title based on selected category
+    const categoryLabel = categories.find(cat => cat.value === selectedCategory)?.label || '전체';
+    const title = selectedCategory === 'all'
+      ? 'Pick | 쿠팡 파트너스 기획전 갤러리'
+      : `${categoryLabel} 기획전 | Pick - 쿠팡 특가 갤러리`;
+
+    document.title = title;
+
+    // Update meta description
+    const description = selectedCategory === 'all'
+      ? '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보와 매일 업데이트되는 쿠팡 파트너스 프로모션을 확인하세요.'
+      : `${categoryLabel} 카테고리의 최신 쿠팡 기획전과 특가 상품을 확인하세요. 매일 업데이트되는 ${categoryLabel} 관련 할인 혜택을 놓치지 마세요.`;
+
+    updateMetaTag('description', description);
+
+    // Update keywords based on category
+    const baseKeywords = '쿠팡, 기획전, 특가, 할인, 이벤트, 프로모션, 쿠팡파트너스, 온라인쇼핑';
+    const categoryKeywords = selectedCategory !== 'all' ? `, ${categoryLabel}, ${categoryLabel}특가, ${categoryLabel}할인` : '';
+    updateMetaTag('keywords', baseKeywords + categoryKeywords);
+
+    // Open Graph
+    updateMetaTag('og:title', title, 'property');
+    updateMetaTag('og:description', description, 'property');
+    updateMetaTag('og:type', 'website', 'property');
+    updateMetaTag('og:url', window.location.href, 'property');
+
+    // Twitter Card
+    updateMetaTag('twitter:card', 'summary_large_image');
+    updateMetaTag('twitter:title', title);
+    updateMetaTag('twitter:description', description);
+
+    // Canonical URL
+    updateLinkTag('canonical', window.location.href);
+  };
+
+  const updateMetaTag = (name: string, content: string, attribute: string = 'name') => {
+    let meta = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute(attribute, name);
+      document.head.appendChild(meta);
+    }
+    meta.content = content;
+  };
+
+  const updateLinkTag = (rel: string, href: string) => {
+    let link = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement;
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = rel;
+      document.head.appendChild(link);
+    }
+    link.href = href;
+  };
+
   const categories = [
     { value: 'all', label: '전체' },
     { value: '일반', label: '일반' },

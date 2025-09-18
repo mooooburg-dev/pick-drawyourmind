@@ -31,6 +31,150 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const updateMetaTags = useCallback((post: BlogPostWithCampaign) => {
+    if (typeof window === 'undefined') return;
+
+    const title = post.title || 'Pick - 쿠팡 파트너스 기획전';
+    const description = post.meta_description || post.excerpt || `${post.campaigns?.title || '특가 상품'}을 확인해보세요!`;
+    const imageUrl = post.featured_image_url || post.campaigns?.image_url || '/default-og-image.png';
+    const url = window.location.href;
+    const siteName = 'Pick - 쿠팡 파트너스 기획전 갤러리';
+
+    // Basic meta tags
+    document.title = title;
+    updateMetaTag('description', description);
+    updateMetaTag('keywords', post.tags ? post.tags.join(', ') : '쿠팡, 파트너스, 특가, 쇼핑, 기획전');
+
+    // Open Graph tags
+    updateMetaTag('og:type', 'article', 'property');
+    updateMetaTag('og:title', title, 'property');
+    updateMetaTag('og:description', description, 'property');
+    updateMetaTag('og:image', imageUrl, 'property');
+    updateMetaTag('og:url', url, 'property');
+    updateMetaTag('og:site_name', siteName, 'property');
+    if (post.campaigns?.category) {
+      updateMetaTag('og:section', post.campaigns.category, 'property');
+    }
+    updateMetaTag('og:published_time', post.created_at, 'property');
+    if (post.updated_at) {
+      updateMetaTag('og:modified_time', post.updated_at, 'property');
+    }
+
+    // Twitter Card tags
+    updateMetaTag('twitter:card', 'summary_large_image');
+    updateMetaTag('twitter:title', title);
+    updateMetaTag('twitter:description', description);
+    updateMetaTag('twitter:image', imageUrl);
+    updateMetaTag('twitter:url', url);
+
+    // Additional SEO tags
+    updateMetaTag('author', 'Pick Team');
+    updateMetaTag('robots', 'index, follow');
+    updateMetaTag('viewport', 'width=device-width, initial-scale=1.0');
+
+    // Canonical URL
+    updateLinkTag('canonical', url);
+
+    // JSON-LD Structured Data
+    updateJsonLD(post);
+  }, []);
+
+  const updateJsonLD = (post: BlogPostWithCampaign) => {
+    const structuredData = {
+      '@context': 'https://schema.org',
+      '@type': 'BlogPosting',
+      headline: post.title,
+      description: post.meta_description || post.excerpt,
+      image: post.featured_image_url || post.campaigns?.image_url,
+      author: {
+        '@type': 'Organization',
+        name: 'Pick Team',
+        url: 'https://pick.drawyourmind.com'
+      },
+      publisher: {
+        '@type': 'Organization',
+        name: 'Pick - 쿠팡 파트너스 기획전 갤러리',
+        url: 'https://pick.drawyourmind.com',
+        logo: {
+          '@type': 'ImageObject',
+          url: 'https://pick.drawyourmind.com/logo.png'
+        }
+      },
+      datePublished: post.created_at,
+      dateModified: post.updated_at || post.created_at,
+      mainEntityOfPage: {
+        '@type': 'WebPage',
+        '@id': window.location.href
+      },
+      url: window.location.href,
+      isPartOf: {
+        '@type': 'WebSite',
+        name: 'Pick - 쿠팡 파트너스 기획전 갤러리',
+        url: 'https://pick.drawyourmind.com'
+      }
+    };
+
+    // Add product information if campaign exists
+    if (post.campaigns) {
+      const productData = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: post.campaigns.title,
+        image: post.campaigns.image_url,
+        category: post.campaigns.category,
+        url: post.campaigns.partner_link,
+        brand: {
+          '@type': 'Brand',
+          name: '쿠팡'
+        },
+        offers: {
+          '@type': 'Offer',
+          url: post.campaigns.partner_link,
+          availability: post.campaigns.is_active ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          seller: {
+            '@type': 'Organization',
+            name: '쿠팡'
+          }
+        }
+      };
+
+      // Combine blog post and product data
+      structuredData['mentions'] = [productData];
+    }
+
+    // Remove existing JSON-LD
+    const existingScript = document.querySelector('script[type="application/ld+json"]');
+    if (existingScript) {
+      existingScript.remove();
+    }
+
+    // Add new JSON-LD
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(structuredData);
+    document.head.appendChild(script);
+  };
+
+  const updateMetaTag = (name: string, content: string, attribute: string = 'name') => {
+    let meta = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement;
+    if (!meta) {
+      meta = document.createElement('meta');
+      meta.setAttribute(attribute, name);
+      document.head.appendChild(meta);
+    }
+    meta.content = content;
+  };
+
+  const updateLinkTag = (rel: string, href: string) => {
+    let link = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement;
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = rel;
+      document.head.appendChild(link);
+    }
+    link.href = href;
+  };
+
   const fetchBlogPost = useCallback(async () => {
     try {
       setLoading(true);
@@ -40,6 +184,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       if (result.success) {
         setPost(result.data);
         setError(null);
+        // Update meta tags for SEO and social sharing
+        updateMetaTags(result.data);
       } else {
         setError(result.error || '블로그 포스트를 찾을 수 없습니다.');
       }
@@ -49,7 +195,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     } finally {
       setLoading(false);
     }
-  }, [slug]);
+  }, [slug, updateMetaTags]);
 
   useEffect(() => {
     fetchBlogPost();
@@ -184,7 +330,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           )}
 
           {/* Header */}
-          <header className="mb-8">
+          <header className="mb-8" itemScope itemType="https://schema.org/BlogPosting">
             <div className="flex items-center gap-2 mb-4">
               {post.tags?.map((tag: string, index: number) => (
                 <span
@@ -196,12 +342,12 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
               ))}
             </div>
 
-            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4" itemProp="headline">
               {post.title}
             </h1>
 
             <div className="flex items-center gap-4 text-sm text-gray-500">
-              <time>
+              <time itemProp="datePublished" dateTime={post.created_at}>
                 {new Date(post.created_at).toLocaleDateString('ko-KR', {
                   year: 'numeric',
                   month: 'long',
@@ -294,8 +440,30 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
 
             <div
               className="blog-content"
+              itemProp="articleBody"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
+
+            {/* Hidden SEO meta for structured data */}
+            <div style={{ display: 'none' }}>
+              <span itemProp="author" itemScope itemType="https://schema.org/Organization">
+                <span itemProp="name">Pick Team</span>
+                <span itemProp="url">https://pick.drawyourmind.com</span>
+              </span>
+              <span itemProp="publisher" itemScope itemType="https://schema.org/Organization">
+                <span itemProp="name">Pick - 쿠팡 파트너스 기획전 갤러리</span>
+                <span itemProp="url">https://pick.drawyourmind.com</span>
+              </span>
+              {post.featured_image_url && (
+                <img itemProp="image" src={post.featured_image_url} alt={post.title} />
+              )}
+              {post.meta_description && (
+                <span itemProp="description">{post.meta_description}</span>
+              )}
+              {post.updated_at && (
+                <time itemProp="dateModified" dateTime={post.updated_at}></time>
+              )}
+            </div>
           </div>
 
           {/* CTA Section */}
