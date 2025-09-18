@@ -15,22 +15,18 @@ export interface BlogPostContent {
   contentImage2Url?: string;
 }
 
+// DALL-E 비용 절약을 위해 비활성화, 카테고리별 기본 이미지 사용
 export async function generateContentImage(description: string): Promise<string> {
-  try {
-    const response = await openai.images.generate({
-      model: 'dall-e-3',
-      prompt: `Create a clean, modern, professional image for a blog post about ${description}. The image should be suitable for e-commerce content, featuring products or lifestyle elements. Style: minimalist, high quality, commercial photography aesthetic.`,
-      size: '1024x1024',
-      quality: 'standard',
-      n: 1,
-    });
+  // 카테고리별 고정 이미지 매핑
+  const categoryImages: Record<string, string> = {
+    '패션': 'https://picsum.photos/seed/fashion/800/400',
+    '뷰티': 'https://picsum.photos/seed/beauty/800/400',
+    '전자제품': 'https://picsum.photos/seed/electronics/800/400',
+    '홈리빙': 'https://picsum.photos/seed/home/800/400',
+    '일반': 'https://picsum.photos/seed/general/800/400'
+  };
 
-    return response.data?.[0]?.url || '';
-  } catch (error) {
-    console.error('이미지 생성 실패:', error);
-    // 이미지 생성 실패 시 카테고리별 기본 이미지 사용
-    return `https://picsum.photos/800/400?random=${Date.now()}`;
-  }
+  return categoryImages[description] || categoryImages['일반'];
 }
 
 export async function generateBlogPost(
@@ -39,76 +35,32 @@ export async function generateBlogPost(
   contentImage2Url?: string
 ): Promise<BlogPostContent> {
   try {
-    const prompt = `
-다음 기획전 정보를 바탕으로 간결하고 매력적인 블로그 포스트를 작성해주세요.
+    const prompt = `기획전: ${campaign.title} (${campaign.category})
 
-기획전 정보:
-- 제목: ${campaign.title}
-- 카테고리: ${campaign.category}
+블로그 포스트 작성 요청:
+- 제목: 50자 이내 SEO 최적화
+- 본문: 600자 HTML (h2, p, ul 태그 사용)
+- 발췌문: 100자 이내
+- 태그: 3개
+- 메타설명: 80자 이내
 
-요구사항:
-1. 블로그 제목: SEO 최적화된 클릭 유도 제목 (50자 이내)
-2. 본문: 800-1200자로 간결하게 작성
-   - 도입부: 기획전 소개 및 트렌드 (200자)
-   - 상품 분석: 카테고리별 인기 상품과 트렌드 (400자)
-   - 구매 가이드: 현명한 구매 팁 (300자)
-   - 마무리: 행동 유도 CTA (100자)
-3. 발췌문: 150자 이내 핵심 요약
-4. 태그: 5개 (카테고리 포함)
-5. 메타 디스크립션: 120자 이내
+${contentImage1Url ? `이미지 포함: <img src="${contentImage1Url}" alt="관련 이미지" />` : ''}
 
-${
-  contentImage1Url && contentImage2Url
-    ? `
-HTML 구조에 다음 이미지들을 적절한 위치에 삽입해주세요:
-- 첫 번째 이미지: ${contentImage1Url}
-- 두 번째 이미지: ${contentImage2Url}
-`
-    : ''
-}
-
-JSON 형식으로 응답:
+JSON 응답:
 {
   "title": "제목",
-  "content": "HTML 본문 - 다음 구조를 사용하세요:
-    <h2>소제목</h2>
-    <p>단락 내용. 충분한 줄바꿈과 간격으로 가독성을 높여주세요.</p>
-    <h3>세부 소제목</h3>
-    <p>설명 내용</p>
-    <ul>
-      <li>리스트 항목 1</li>
-      <li>리스트 항목 2</li>
-    </ul>
-    ${
-      contentImage1Url && contentImage2Url
-        ? '<img src="이미지URL" alt="설명" />'
-        : ''
-    }
-    모든 텍스트는 충분한 대비를 위해 진한 색상으로 표시되도록 작성",
+  "content": "HTML 본문",
   "excerpt": "발췌문",
-  "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
-  "metaDescription": "메타 디스크립션"
-}
-
-주의사항:
-- 특정 쇼핑몰 브랜드명 언급 금지
-- 자연스럽고 유익한 내용
-- 과도한 광고성 표현 지양
-- 한국어로 읽기 쉽게 작성
-${
-  contentImage1Url && contentImage2Url
-    ? '- 이미지는 img 태그로 삽입하고 alt 속성 포함'
-    : ''
-}
-`;
+  "tags": ["태그1", "태그2", "태그3"],
+  "metaDescription": "메타설명"
+}`;
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-3.5-turbo',
       messages: [
         {
           role: 'system',
-          content:
-            '당신은 전문적인 블로그 작가입니다. 기획전에 대한 매력적이고 유익한 블로그 포스트를 작성합니다.',
+          content: '블로그 작가로서 매력적인 기획전 포스트를 JSON으로 작성하세요.',
         },
         {
           role: 'user',
@@ -116,7 +68,7 @@ ${
         },
       ],
       temperature: 0.7,
-      max_tokens: 2000,
+      max_tokens: 1000,
     });
 
     const responseContent = completion.choices[0]?.message?.content;
