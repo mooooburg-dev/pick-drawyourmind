@@ -15,18 +15,99 @@ export interface BlogPostContent {
   contentImage2Url?: string;
 }
 
-// DALL-E 비용 절약을 위해 비활성화, 카테고리별 기본 이미지 사용
-export async function generateContentImage(description: string): Promise<string> {
-  // 카테고리별 고정 이미지 매핑
-  const categoryImages: Record<string, string> = {
-    '패션': 'https://picsum.photos/seed/fashion/800/400',
-    '뷰티': 'https://picsum.photos/seed/beauty/800/400',
-    '전자제품': 'https://picsum.photos/seed/electronics/800/400',
-    '홈리빙': 'https://picsum.photos/seed/home/800/400',
-    '일반': 'https://picsum.photos/seed/general/800/400'
-  };
+// OpenAI DALL-E를 사용한 이미지 생성
+export async function generateContentImage(
+  description: string
+): Promise<string> {
+  try {
+    console.log(`DALL-E 이미지 생성 시작: ${description}`);
 
-  return categoryImages[description] || categoryImages['일반'];
+    // 카테고리별 상세한 프롬프트 생성
+    const categoryPrompts: Record<string, string> = {
+      // 기본 카테고리
+      패션: `A modern fashion collection showcasing stylish clothing items, trendy outfits, elegant models in a clean studio setting, professional fashion photography style, high quality, commercial fashion shoot aesthetic`,
+      뷰티: `Beautiful cosmetics and beauty products arranged elegantly, skincare items, makeup palette, clean white background, professional product photography, soft lighting, luxury beauty brand aesthetic`,
+      전자제품: `Modern electronic devices and gadgets, sleek technology products, smartphones, headphones, computers, clean white background, professional product photography, minimalist tech aesthetic`,
+      홈리빙: `Cozy home interior design, modern furniture, comfortable living space, decorative items, warm lighting, Scandinavian style, clean and organized home decor`,
+      일반: `Modern lifestyle products and accessories, clean commercial photography, professional product arrangement, neutral background, high quality commercial imagery`,
+
+      // 라이프스타일 이미지
+      패션_lifestyle: `People wearing fashionable outfits in everyday life, street style photography, trendy lifestyle, urban fashion, natural poses, high quality lifestyle photography`,
+      뷰티_lifestyle: `Beautiful people using skincare and makeup products, self-care routine, natural beauty lifestyle, soft lighting, wellness and beauty concept`,
+      전자제품_lifestyle: `People using modern technology in daily life, working with gadgets, tech-savvy lifestyle, modern workspace, digital lifestyle photography`,
+      홈리빙_lifestyle: `People enjoying comfortable home life, cozy living spaces, family time at home, comfortable lifestyle, warm and inviting atmosphere`,
+      일반_lifestyle: `Happy people enjoying modern lifestyle, everyday life moments, contemporary living, positive lifestyle photography`,
+
+      // 상세/특징 이미지
+      패션_detail: `Close-up details of clothing fabric, texture, quality materials, fashion design elements, professional detail photography, luxury fashion aesthetics`,
+      뷰티_detail: `Close-up of beauty product textures, skincare application, makeup details, product quality shots, luxury beauty brand photography`,
+      전자제품_detail: `Close-up of technology features, device details, premium build quality, tech specifications, professional product photography`,
+      홈리빙_detail: `Interior design details, furniture craftsmanship, home decor elements, quality materials, architectural details`,
+      일반_detail: `Product quality details, craftsmanship, premium materials, professional close-up photography, attention to detail`,
+
+      // 쇼핑/혜택 이미지
+      패션_shopping: `Fashion shopping experience, boutique store, special deals and discounts, shopping bags, retail environment, luxury shopping aesthetic`,
+      뷰티_shopping: `Beauty store shopping, cosmetics counter, special offers, beauty shopping experience, retail beauty environment`,
+      전자제품_shopping: `Electronics store, tech shopping, special promotions, modern retail space, technology showcase`,
+      홈리빙_shopping: `Home goods store, interior shopping, furniture showroom, home decor retail, shopping for home items`,
+      일반_shopping: `Modern retail shopping experience, special offers, promotional display, shopping concept, retail environment`,
+    };
+
+    const prompt = categoryPrompts[description] || categoryPrompts['일반'];
+
+    const response = await openai.images.generate({
+      model: "dall-e-3",
+      prompt: prompt,
+      n: 1,
+      size: "1024x1024",
+      quality: "standard",
+      style: "natural"
+    });
+
+    const imageUrl = response.data?.[0]?.url;
+    if (!imageUrl) {
+      throw new Error('DALL-E 응답에서 이미지 URL을 찾을 수 없습니다.');
+    }
+
+    console.log(`DALL-E 이미지 생성 완료: ${imageUrl}`);
+    return imageUrl;
+
+  } catch (error) {
+    console.error('DALL-E 이미지 생성 실패:', error);
+
+    // 실패 시 카테고리별 고품질 Unsplash 이미지로 폴백
+    const fallbackImages: Record<string, string> = {
+      // 기본 카테고리
+      패션: 'https://images.unsplash.com/photo-1445205170230-053b83016050?w=800&h=400&fit=crop&crop=center',
+      뷰티: 'https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=800&h=400&fit=crop&crop=center',
+      전자제품: 'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=800&h=400&fit=crop&crop=center',
+      홈리빙: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=400&fit=crop&crop=center',
+      일반: 'https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=400&fit=crop&crop=center',
+
+      // 라이프스타일 이미지
+      패션_lifestyle: 'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=800&h=400&fit=crop&crop=center',
+      뷰티_lifestyle: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=800&h=400&fit=crop&crop=center',
+      전자제품_lifestyle: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=800&h=400&fit=crop&crop=center',
+      홈리빙_lifestyle: 'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=400&fit=crop&crop=center',
+      일반_lifestyle: 'https://images.unsplash.com/photo-1524863479829-916d8e77f114?w=800&h=400&fit=crop&crop=center',
+
+      // 상세/특징 이미지
+      패션_detail: 'https://images.unsplash.com/photo-1434389677669-e08b4cac3105?w=800&h=400&fit=crop&crop=center',
+      뷰티_detail: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=800&h=400&fit=crop&crop=center',
+      전자제품_detail: 'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=800&h=400&fit=crop&crop=center',
+      홈리빙_detail: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&h=400&fit=crop&crop=center',
+      일반_detail: 'https://images.unsplash.com/photo-1486312338219-ce68e2c6b43d?w=800&h=400&fit=crop&crop=center',
+
+      // 쇼핑/혜택 이미지
+      패션_shopping: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800&h=400&fit=crop&crop=center',
+      뷰티_shopping: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?w=800&h=400&fit=crop&crop=center',
+      전자제품_shopping: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&h=400&fit=crop&crop=center',
+      홈리빙_shopping: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800&h=400&fit=crop&crop=center',
+      일반_shopping: 'https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=400&fit=crop&crop=center',
+    };
+
+    return fallbackImages[description] || fallbackImages['일반'];
+  }
 }
 
 export async function generateBlogPost(
@@ -34,7 +115,34 @@ export async function generateBlogPost(
   contentImage1Url?: string,
   contentImage2Url?: string
 ): Promise<BlogPostContent> {
+  // 이미지 변수들을 함수 스코프로 이동
+  let image1Url = contentImage1Url;
+  let image2Url = contentImage2Url;
+  let image3Url = '';
+  let image4Url = '';
+
   try {
+
+    // 이미지 1 생성 (메인 제품/카테고리 이미지)
+    if (!image1Url) {
+      console.log('이미지 1 생성 중...');
+      image1Url = await generateContentImage(campaign.category || '일반');
+    }
+
+    // 이미지 2 생성 (라이프스타일 이미지)
+    if (!image2Url) {
+      console.log('이미지 2 생성 중...');
+      image2Url = await generateContentImage(`${campaign.category}_lifestyle`);
+    }
+
+    // 이미지 3 생성 (상세/특징 이미지)
+    console.log('이미지 3 생성 중...');
+    image3Url = await generateContentImage(`${campaign.category}_detail`);
+
+    // 이미지 4 생성 (혜택/쇼핑 이미지)
+    console.log('이미지 4 생성 중...');
+    image4Url = await generateContentImage(`${campaign.category}_shopping`);
+
     const prompt = `기획전: ${campaign.title} (${campaign.category})
 
 블로그 포스트 작성 요청:
@@ -46,10 +154,10 @@ export async function generateBlogPost(
 - 메타설명: 120자 이내
 
 이미지 위치:
-- 이미지1: ${contentImage1Url || 'https://picsum.photos/seed/img1/800/400'}
-- 이미지2: ${contentImage2Url || 'https://picsum.photos/seed/img2/800/400'}
-- 이미지3: https://picsum.photos/seed/img3/800/400
-- 이미지4: https://picsum.photos/seed/img4/800/400
+- 이미지1: ${image1Url}
+- 이미지2: ${image2Url}
+- 이미지3: ${image3Url}
+- 이미지4: ${image4Url}
 
 JSON 응답:
 {
@@ -61,11 +169,12 @@ JSON 응답:
 }`;
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-3.5-turbo',
+      model: 'gpt-4o-mini',
       messages: [
         {
           role: 'system',
-          content: '당신은 전문 블로그 작가입니다. 1200-2000자의 상세하고 매력적인 기획전 포스트를 JSON 형식으로 작성하세요. 코드 블록(```) 없이 순수 JSON만 반환하세요.',
+          content:
+            '당신은 SEO를 잘 이해하고, 검색 엔진 노출 최적화를 잘하는 전문 블로그 작가입니다. 이모지를 적절히 활용해서 약 1,200~2,000자의 상세하고 매력적인 기획전 포스트를 JSON 형식으로 작성하세요. 코드 블록(```) 없이 순수 JSON만 반환하세요. 글체는 너무 딱딱하지 않은 캐쥬얼 톤으로 작성하세요. 기획전을 소개하는 블로그 포스팅입니다. 기획전 제목은 ${campaign.title} 입니다.',
         },
         {
           role: 'user',
@@ -84,7 +193,9 @@ JSON 응답:
     // JSON 응답 파싱 (코드 블록 제거)
     let cleanedResponse = responseContent;
     if (responseContent.includes('```json')) {
-      cleanedResponse = responseContent.replace(/```json\s*/, '').replace(/\s*```$/, '');
+      cleanedResponse = responseContent
+        .replace(/```json\s*/, '')
+        .replace(/\s*```$/, '');
     }
     const blogContent: BlogPostContent = JSON.parse(cleanedResponse);
 
@@ -95,21 +206,48 @@ JSON 응답:
 
     return {
       ...blogContent,
-      contentImage1Url,
-      contentImage2Url,
+      contentImage1Url: image1Url,
+      contentImage2Url: image2Url,
     };
   } catch (error) {
     console.error('블로그 포스트 생성 오류:', error);
 
-    // OpenAI API 호출 실패 시 기본 블로그 포스트 생성 (이미지 포함)
-    const fallbackImage1 = `https://picsum.photos/800/400?random=${Date.now()}`;
-    const fallbackImage2 = `https://picsum.photos/800/400?random=${
-      Date.now() + 1
-    }`;
+    // OpenAI API 호출 실패 시 기본 블로그 포스트 생성 (DALL-E 이미지 포함)
+    // 이미지가 이미 생성되었다면 사용, 아니면 생성
+    let img1 = image1Url;
+    let img2 = image2Url;
+    let img3 = image3Url;
+    let img4 = image4Url;
 
-    const useContentImages = contentImage1Url && contentImage2Url;
-    const img1 = useContentImages ? contentImage1Url : fallbackImage1;
-    const img2 = useContentImages ? contentImage2Url : fallbackImage2;
+    // 이미지가 없는 경우에만 생성 (에러 핸들링을 위해)
+    if (!img1) {
+      try {
+        img1 = await generateContentImage(campaign.category || '일반');
+      } catch {
+        img1 = `https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=800&h=400&fit=crop&crop=center`;
+      }
+    }
+    if (!img2) {
+      try {
+        img2 = await generateContentImage(`${campaign.category}_lifestyle`);
+      } catch {
+        img2 = `https://images.unsplash.com/photo-1524863479829-916d8e77f114?w=800&h=400&fit=crop&crop=center`;
+      }
+    }
+    if (!img3) {
+      try {
+        img3 = await generateContentImage(`${campaign.category}_detail`);
+      } catch {
+        img3 = `https://images.unsplash.com/photo-1486312338219-ce68e2c6b43d?w=800&h=400&fit=crop&crop=center`;
+      }
+    }
+    if (!img4) {
+      try {
+        img4 = await generateContentImage(`${campaign.category}_shopping`);
+      } catch {
+        img4 = `https://images.unsplash.com/photo-1472851294608-062f824d29cc?w=800&h=400&fit=crop&crop=center`;
+      }
+    }
 
     return {
       title: `${campaign.title} - 놓치면 후회할 특가 기회!`,
@@ -144,7 +282,7 @@ JSON 응답:
           <li>쿠폰 및 적립금 활용으로 추가 절약</li>
         </ul>
 
-        <img src="https://picsum.photos/seed/img3/800/400" alt="특가 혜택 상세 이미지" style="width: 100%; max-width: 800px; height: 400px; object-fit: cover; border-radius: 8px; margin: 20px 0;" />
+        <img src="${img3}" alt="특가 혜택 상세 이미지" style="width: 100%; max-width: 800px; height: 400px; object-fit: cover; border-radius: 8px; margin: 20px 0;" />
 
         <h3>🏆 왜 이 기획전이 특별한가?</h3>
         <p>수많은 온라인 기획전 중에서도 이번 ${campaign.title}이 주목받는 이유가 있습니다. 단순히 할인만 제공하는 것이 아니라, 정말 좋은 상품들을 엄선해서 소개하고 있기 때문입니다.</p>
@@ -161,7 +299,7 @@ JSON 응답:
           <li>디자인과 실용성을 모두 갖춘 아이템</li>
         </ul>
 
-        <img src="https://picsum.photos/seed/img4/800/400" alt="구매 가이드 및 팁" style="width: 100%; max-width: 800px; height: 400px; object-fit: cover; border-radius: 8px; margin: 20px 0;" />
+        <img src="${img4}" alt="구매 가이드 및 팁" style="width: 100%; max-width: 800px; height: 400px; object-fit: cover; border-radius: 8px; margin: 20px 0;" />
 
         <h3>💡 구매 전 체크포인트</h3>
         <p>기획전에서 실패하지 않는 구매를 위해 몇 가지 체크포인트를 알려드리겠습니다:</p>
@@ -188,8 +326,8 @@ JSON 응답:
       excerpt: `${campaign.title} 기획전에서 ${campaign.category} 상품들을 특가로 만나보세요! 최대 50% 할인과 다양한 혜택이 준비되어 있습니다. 놓치면 후회할 기회, 지금 바로 확인해보세요.`,
       tags: [campaign.category || '일반', '특가', '할인', '기획전', '쇼핑'],
       metaDescription: `${campaign.title} 기획전 완벽 가이드! ${campaign.category} 상품 최대 50% 할인, 특별 혜택 총정리. 현명한 구매 팁과 추천 상품까지!`,
-      contentImage1Url,
-      contentImage2Url,
+      contentImage1Url: img1,
+      contentImage2Url: img2,
     };
   }
 }
