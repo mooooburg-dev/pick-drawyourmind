@@ -1,9 +1,13 @@
 'use client'
 
-import { useState, useEffect, use } from 'react'
+import { useState, useEffect, use, useCallback } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { BlogPost } from '@/lib/supabase'
+import { BlogPost, Campaign } from '@/lib/supabase'
+
+interface BlogPostWithCampaign extends BlogPost {
+  campaigns?: Campaign
+}
 
 interface BlogPostPageProps {
   params: Promise<{
@@ -13,15 +17,11 @@ interface BlogPostPageProps {
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = use(params)
-  const [post, setPost] = useState<any>(null)
+  const [post, setPost] = useState<BlogPostWithCampaign | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    fetchBlogPost()
-  }, [slug])
-
-  const fetchBlogPost = async () => {
+  const fetchBlogPost = useCallback(async () => {
     try {
       setLoading(true)
       const response = await fetch(`/api/blog/${slug}`)
@@ -39,7 +39,11 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [slug])
+
+  useEffect(() => {
+    fetchBlogPost()
+  }, [fetchBlogPost])
 
   if (loading) {
     return (

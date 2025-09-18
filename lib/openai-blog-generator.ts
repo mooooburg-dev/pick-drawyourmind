@@ -15,7 +15,7 @@ export interface BlogPostContent {
   contentImage2Url?: string;
 }
 
-async function generateContentImage(description: string): Promise<string> {
+export async function generateContentImage(description: string): Promise<string> {
   try {
     const response = await openai.images.generate({
       model: 'dall-e-3',
@@ -25,7 +25,7 @@ async function generateContentImage(description: string): Promise<string> {
       n: 1,
     });
 
-    return response.data[0]?.url || '';
+    return response.data?.[0]?.url || '';
   } catch (error) {
     console.error('이미지 생성 실패:', error);
     // 이미지 생성 실패 시 카테고리별 기본 이미지 사용

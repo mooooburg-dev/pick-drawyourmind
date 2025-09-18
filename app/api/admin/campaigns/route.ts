@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { generateBlogPost, generateSlug } from '@/lib/openai-blog-generator'
-import OpenAI from 'openai'
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-})
 
 async function generateContentImages(category: string): Promise<{ image1: string; image2: string }> {
   try {

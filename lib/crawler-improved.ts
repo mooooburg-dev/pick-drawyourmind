@@ -1,4 +1,4 @@
-import { chromium, Browser, Page } from 'playwright'
+import { chromium, Browser, Page, ElementHandle } from 'playwright'
 import { getSupabaseAdmin } from './supabase'
 
 export interface CampaignData {
@@ -161,7 +161,7 @@ export class ImprovedCoupangCrawler {
         '[class*="campaign"]'
       ]
 
-      let eventElements: any[] = []
+      let eventElements: ElementHandle[] = []
 
       for (const selector of possibleSelectors) {
         eventElements = await this.page.$$(selector)
@@ -294,7 +294,7 @@ export class ImprovedCoupangCrawler {
       const campaigns = await this.extractCampaigns()
 
       for (const campaign of campaigns) {
-        const campaignId = await this.saveCampaignToDatabase(campaign)
+        await this.saveCampaignToDatabase(campaign)
         console.log(`처리 완료: ${campaign.title}`)
       }
 

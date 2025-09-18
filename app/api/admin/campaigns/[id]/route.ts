@@ -20,7 +20,7 @@ export async function PATCH(
 
     // 허용되는 필드만 업데이트
     const allowedFields = ['title', 'image_url', 'partner_link', 'category', 'is_active']
-    const updateData: any = {}
+    const updateData: Record<string, unknown> = {}
 
     for (const field of allowedFields) {
       if (body[field] !== undefined) {
