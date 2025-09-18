@@ -744,7 +744,10 @@ function BlogManagement({
     ],
 
     // AI Assistant 설정 (추후 구현 가능)
-    ai_request: (request: any, respondWith: any) => {
+    ai_request: (
+      request: unknown,
+      respondWith: { string: (callback: () => Promise<never>) => void }
+    ) => {
       respondWith.string(() =>
         Promise.reject('AI Assistant 기능은 추후 구현 예정입니다.')
       );
@@ -754,7 +757,11 @@ function BlogManagement({
     uploadcare_public_key: '8a183fb57904c815989c',
 
     // 에디터 이벤트 설정
-    setup: (editor: any) => {
+    setup: (editor: {
+      on: (event: string, callback: () => void) => void;
+      getContent: () => string;
+      getDoc: () => { documentElement: { lang: string } };
+    }) => {
       editor.on('change', () => {
         const content = editor.getContent();
         setEditForm((prev) => ({ ...prev, content }));
