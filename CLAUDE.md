@@ -3,6 +3,7 @@
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
 - 커밋 메시지, 주석 등은 모두 한글을 사용해서 작성함.
+- 커밋 할때 CLAUDE 관련 이름, 내용은 제거
 
 ## Development Commands
 
