@@ -1,12 +1,12 @@
 # Pick - 쿠팡 파트너스 기획전 갤러리
 
-쿠팡 파트너스 기획전을 자동으로 수집하여 예쁘게 갤러리로 보여주는 웹사이트입니다.
+쿠팡 파트너스 기획전을 자동으로 수집하여 예쁘게 갤러리로 보여주고, AI로 블로그 포스팅을 자동 생성하는 웹사이트입니다.
 
 ## 🎯 프로젝트 개요
 
-- **목표**: 쿠팡 파트너스 기획전 자동 큐레이션 서비스 구축
+- **목표**: 쿠팡 파트너스 기획전 자동 큐레이션 및 블로그 자동화 서비스
 - **도메인**: pick.drawyourmind.com
-- **기술 스택**: Next.js + TypeScript + Tailwind CSS + Supabase + Playwright
+- **기술 스택**: Next.js 15 + TypeScript + Tailwind CSS + Supabase + Playwright + TinyMCE
 
 ## 🚀 주요 기능
 
@@ -21,15 +21,17 @@
 - 반응형 디자인 (모바일 최적화)
 - 쿠팡 파트너스 링크 직접 연결
 
-### 3. AI 블로그 포스팅
-- ChatGPT를 이용한 자동 블로그 포스팅 생성
-- 기획전 정보 기반 컨텐츠 작성
-- Supabase에 자동 저장
+### 3. 블로그 시스템
+- **자동 블로그 생성**: OpenAI GPT를 이용한 기획전 기반 블로그 포스팅 자동 작성
+- **관리자 패널**: 블로그 포스트 편집 및 관리 기능
+- **TinyMCE 에디터**: 전문적인 WYSIWYG 에디터로 블로그 편집
+- **프리미엄 기능**: AI Assistant, 스펠체크, 마크다운, Word/PDF 가져오기/내보내기
 
 ## 🛠️ 기술 스택
 
 - **Frontend**: Next.js 15 + TypeScript + Tailwind CSS
 - **Database**: Supabase (PostgreSQL + Storage)
+- **Editor**: TinyMCE (Premium WYSIWYG Editor)
 - **Automation**: Playwright + GitHub Actions
 - **AI**: OpenAI GPT API
 - **Deployment**: Vercel
@@ -60,6 +62,9 @@ SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
 # OpenAI
 OPENAI_API_KEY=your_openai_api_key
 
+# TinyMCE (Optional - using cloud CDN with API key)
+TINYMCE_API_KEY=your_tinymce_api_key
+
 # Coupang Partners
 COUPANG_PARTNERS_EMAIL=your_email
 COUPANG_PARTNERS_PASSWORD=your_password
@@ -80,11 +85,21 @@ Supabase에서 다음 SQL을 실행하여 테이블을 생성합니다:
 npm run dev
 ```
 
-## 🤖 크롤링 실행
+### 6. 관리자 패널 접속
+개발 서버 실행 후 `http://localhost:3000/admin`에 접속하여 관리자 패널을 사용할 수 있습니다.
+- **기본 비밀번호**: `admin2024!`
+- **기능**: 기획전 관리, 블로그 포스트 편집, TinyMCE 에디터 사용
+
+## 🤖 크롤링 및 테스트
 
 ### 수동 크롤링
 ```bash
 npm run crawl
+```
+
+### OpenAI 테스트
+```bash
+npm run test:openai
 ```
 
 ### API를 통한 크롤링
@@ -108,8 +123,15 @@ curl -X POST http://localhost:3000/api/crawl
 ### blog_posts 테이블
 - `id` (UUID): 고유 식별자
 - `campaign_id` (UUID): 캠페인 ID (외래키)
-- `content` (TEXT): 블로그 포스팅 내용
+- `title` (TEXT): 블로그 포스트 제목
+- `content` (TEXT): 블로그 포스팅 HTML 내용
+- `excerpt` (TEXT): 블로그 포스트 요약
+- `tags` (TEXT[]): 태그 배열
+- `meta_description` (TEXT): SEO 메타 설명
+- `slug` (TEXT): URL 슬러그
+- `is_published` (BOOLEAN): 발행 여부
 - `created_at` (TIMESTAMP): 생성일
+- `updated_at` (TIMESTAMP): 수정일
 
 ## 🔄 자동화 워크플로우
 
@@ -127,9 +149,23 @@ curl -X POST http://localhost:3000/api/crawl
 
 ## 📝 API 엔드포인트
 
+### 기획전 API
 - `GET /api/campaigns` - 기획전 목록 조회
 - `GET /api/campaigns/[id]` - 특정 기획전 조회
 - `POST /api/crawl` - 크롤링 실행
+
+### 블로그 API
+- `GET /api/blog` - 블로그 포스트 목록 조회
+- `GET /api/blog/[slug]` - 특정 블로그 포스트 조회
+
+### 관리자 API
+- `GET /api/admin/campaigns/all` - 모든 기획전 조회 (관리자)
+- `POST /api/admin/campaigns` - 기획전 추가
+- `PATCH /api/admin/campaigns/[id]` - 기획전 수정
+- `DELETE /api/admin/campaigns/[id]` - 기획전 삭제
+- `GET /api/admin/blog` - 모든 블로그 포스트 조회 (관리자)
+- `PATCH /api/admin/blog/[id]` - 블로그 포스트 수정
+- `DELETE /api/admin/blog/[id]` - 블로그 포스트 삭제
 
 ## 🚀 배포
 
