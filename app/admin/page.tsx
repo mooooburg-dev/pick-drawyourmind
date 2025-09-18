@@ -42,8 +42,34 @@ export default function AdminPage() {
       setIsAuthenticated(true);
       fetchCampaigns();
       fetchBlogPosts();
+
+      // URL 파라미터 확인하여 탭 설정
+      const urlParams = new URLSearchParams(window.location.search);
+      const tab = urlParams.get('tab');
+
+      if (tab === 'blogs') {
+        setActiveTab('blogs');
+      }
     }
   }, []);
+
+  // 블로그 포스트 로딩 완료 후 URL 파라미터 처리
+  useEffect(() => {
+    if (isAuthenticated && blogPosts.length > 0) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const editId = urlParams.get('edit');
+
+      if (editId) {
+        const postToEdit = blogPosts.find((post) => post.id === editId);
+        if (postToEdit) {
+          setEditingPost(postToEdit);
+          // URL에서 파라미터 제거 (깔끔한 URL 유지)
+          const newUrl = window.location.pathname + '?tab=blogs';
+          window.history.replaceState({}, '', newUrl);
+        }
+      }
+    }
+  }, [isAuthenticated, blogPosts]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();

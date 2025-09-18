@@ -20,6 +20,8 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   const [post, setPost] = useState<BlogPostWithCampaign | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const fetchBlogPost = useCallback(async () => {
     try {
@@ -44,6 +46,67 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
   useEffect(() => {
     fetchBlogPost();
   }, [fetchBlogPost]);
+
+  useEffect(() => {
+    // 관리자 인증 상태 확인
+    const checkAdminAuth = () => {
+      const authStatus = sessionStorage.getItem('admin_authenticated');
+      setIsAdmin(authStatus === 'true');
+    };
+
+    checkAdminAuth();
+
+    // 세션 스토리지 변경 감지
+    const handleStorageChange = () => {
+      checkAdminAuth();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  const copyContent = useCallback(async () => {
+    if (!post?.content) return;
+
+    try {
+      // HTML 태그 제거하고 텍스트만 추출
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = post.content;
+      const textContent = tempDiv.textContent || tempDiv.innerText || '';
+
+      await navigator.clipboard.writeText(textContent);
+      setCopied(true);
+
+      // 2초 후 복사 상태 초기화
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('복사 실패:', error);
+      // fallback: 텍스트 선택
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = post.content;
+      const textContent = tempDiv.textContent || tempDiv.innerText || '';
+
+      const textArea = document.createElement('textarea');
+      textArea.value = textContent;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  }, [post?.content]);
+
+  const handleEdit = useCallback(() => {
+    if (!post?.id) return;
+
+    // 관리자 페이지의 블로그 관리 탭으로 이동하면서 해당 포스트 편집 모드로 설정
+    const editUrl = `/admin?tab=blogs&edit=${post.id}`;
+    window.open(editUrl, '_blank');
+  }, [post?.id]);
 
   if (loading) {
     return (
@@ -144,7 +207,73 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           </header>
 
           {/* Content */}
-          <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
+          <div className="bg-white rounded-lg shadow-sm p-8 mb-8 relative">
+            {/* Admin Buttons */}
+            {isAdmin && (
+              <div className="absolute top-4 right-4 flex items-center gap-2">
+                {/* Edit Button */}
+                <button
+                  onClick={handleEdit}
+                  className="flex items-center gap-2 px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm rounded-md transition-colors"
+                >
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                    />
+                  </svg>
+                  수정
+                </button>
+
+                {/* Copy Button */}
+                <button
+                  onClick={copyContent}
+                  className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm rounded-md transition-colors"
+                >
+                  {copied ? (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        fill="currentColor"
+                        viewBox="0 0 20 20"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                      복사됨
+                    </>
+                  ) : (
+                    <>
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+                        />
+                      </svg>
+                      복사
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+
             <div
               className="blog-content"
               dangerouslySetInnerHTML={{ __html: post.content }}
