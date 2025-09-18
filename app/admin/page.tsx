@@ -373,115 +373,258 @@ export default function AdminPage() {
           <>
             {/* 기획전 추가 폼 */}
             {showAddForm && (
-              <div className="bg-white rounded-lg shadow p-6 mb-8">
-                <h2 className="text-lg font-bold mb-4">새 기획전 추가</h2>
-                <form onSubmit={handleAddCampaign} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      제목
-                    </label>
-                    <input
-                      type="text"
-                      value={newCampaign.title}
-                      onChange={(e) =>
-                        setNewCampaign({
-                          ...newCampaign,
-                          title: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      required
-                    />
+              <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden mb-8">
+                {/* 폼 헤더 */}
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                      <svg
+                        className="w-5 h-5 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-xl font-bold text-gray-900">
+                        새 기획전 추가
+                      </h2>
+                      <p className="text-sm text-gray-600 mt-1">
+                        새로운 기획전을 등록하고 관리하세요
+                      </p>
+                    </div>
                   </div>
+                </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      이미지 URL
-                    </label>
-                    <input
-                      type="url"
-                      value={newCampaign.image_url}
-                      onChange={(e) =>
-                        setNewCampaign({
-                          ...newCampaign,
-                          image_url: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="https://example.com/image.jpg"
-                      required
-                    />
-                    {newCampaign.image_url && (
-                      <div className="mt-2">
-                        <p className="text-sm text-gray-600 mb-2">미리보기:</p>
-                        <div className="relative w-32 h-32 border border-gray-300 rounded-md overflow-hidden">
-                          <Image
-                            src={newCampaign.image_url}
-                            alt="미리보기"
-                            fill
-                            className="object-cover"
-                            sizes="128px"
-                            onError={(e) => {
-                              const target = e.target as HTMLImageElement;
-                              target.style.display = 'none';
-                            }}
+                {/* 폼 본문 */}
+                <div className="px-8 py-8">
+                  <form onSubmit={handleAddCampaign} className="space-y-8">
+                    {/* 기본 정보 섹션 */}
+                    <div className="space-y-6">
+                      <div className="border-l-4 border-blue-500 pl-4">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                          기본 정보
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          기획전의 기본적인 정보를 입력하세요
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* 제목 */}
+                        <div className="md:col-span-2">
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">
+                            제목 <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={newCampaign.title}
+                            onChange={(e) =>
+                              setNewCampaign({
+                                ...newCampaign,
+                                title: e.target.value,
+                              })
+                            }
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 placeholder-gray-400 text-base"
+                            placeholder="기획전 제목을 입력하세요"
+                            required
                           />
                         </div>
+
+                        {/* 카테고리 */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">
+                            카테고리 <span className="text-red-500">*</span>
+                          </label>
+                          <select
+                            value={newCampaign.category}
+                            onChange={(e) =>
+                              setNewCampaign({
+                                ...newCampaign,
+                                category: e.target.value,
+                              })
+                            }
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 text-base"
+                          >
+                            <option value="일반">일반</option>
+                            <option value="패션">패션</option>
+                            <option value="뷰티">뷰티</option>
+                            <option value="전자제품">전자제품</option>
+                            <option value="홈리빙">홈리빙</option>
+                          </select>
+                        </div>
                       </div>
-                    )}
-                  </div>
+                    </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      파트너스 링크
-                    </label>
-                    <input
-                      type="url"
-                      value={newCampaign.partner_link}
-                      onChange={(e) =>
-                        setNewCampaign({
-                          ...newCampaign,
-                          partner_link: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      placeholder="https://partners.coupang.com/..."
-                      required
-                    />
-                  </div>
+                    {/* 이미지 섹션 */}
+                    <div className="space-y-6">
+                      <div className="border-l-4 border-green-500 pl-4">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                          이미지 설정
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          기획전에 표시될 이미지를 설정하세요
+                        </p>
+                      </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      카테고리
-                    </label>
-                    <select
-                      value={newCampaign.category}
-                      onChange={(e) =>
-                        setNewCampaign({
-                          ...newCampaign,
-                          category: e.target.value,
-                        })
-                      }
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="일반">일반</option>
-                      <option value="패션">패션</option>
-                      <option value="뷰티">뷰티</option>
-                      <option value="전자제품">전자제품</option>
-                      <option value="홈리빙">홈리빙</option>
-                    </select>
-                  </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-3">
+                          이미지 URL <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="url"
+                          value={newCampaign.image_url}
+                          onChange={(e) =>
+                            setNewCampaign({
+                              ...newCampaign,
+                              image_url: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 placeholder-gray-400 text-base"
+                          placeholder="https://example.com/image.jpg"
+                          required
+                        />
 
-                  <div className="flex space-x-4">
-                    <button
-                      type="submit"
-                      disabled={loading}
-                      className="flex-1 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white py-2 px-4 rounded-md"
-                    >
-                      {loading ? '추가 중...' : '추가'}
-                    </button>
-                  </div>
-                </form>
+                        {/* 이미지 미리보기 */}
+                        {newCampaign.image_url && (
+                          <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                            <p className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                              <svg
+                                className="w-4 h-4 mr-2 text-gray-500"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                />
+                              </svg>
+                              이미지 미리보기
+                            </p>
+                            <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-white">
+                              <Image
+                                src={newCampaign.image_url}
+                                alt="미리보기"
+                                fill
+                                className="object-cover"
+                                sizes="160px"
+                                onError={(e) => {
+                                  const target = e.target as HTMLImageElement;
+                                  target.style.display = 'none';
+                                }}
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 링크 섹션 */}
+                    <div className="space-y-6">
+                      <div className="border-l-4 border-purple-500 pl-4">
+                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                          링크 설정
+                        </h3>
+                        <p className="text-sm text-gray-600">
+                          파트너스 링크를 설정하세요
+                        </p>
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-800 mb-3">
+                          파트너스 링크 <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="url"
+                          value={newCampaign.partner_link}
+                          onChange={(e) =>
+                            setNewCampaign({
+                              ...newCampaign,
+                              partner_link: e.target.value,
+                            })
+                          }
+                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 placeholder-gray-400 text-base"
+                          placeholder="https://partners.coupang.com/..."
+                          required
+                        />
+                        <p className="mt-2 text-xs text-gray-500 flex items-center">
+                          <svg
+                            className="w-3 h-3 mr-1"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                          쿠팡 파트너스 링크를 입력하세요
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* 액션 버튼 */}
+                    <div className="pt-6 border-t border-gray-200">
+                      <div className="flex justify-end space-x-4">
+                        <button
+                          type="button"
+                          onClick={() => setShowAddForm(false)}
+                          className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
+                        >
+                          취소
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={loading}
+                          className="px-8 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 flex items-center space-x-2"
+                        >
+                          {loading ? (
+                            <>
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              <span>추가 중...</span>
+                            </>
+                          ) : (
+                            <>
+                              <svg
+                                className="w-4 h-4"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                                />
+                              </svg>
+                              <span>기획전 추가</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  </form>
+                </div>
               </div>
             )}
 
