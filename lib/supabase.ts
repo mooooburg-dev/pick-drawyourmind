@@ -53,6 +53,16 @@ export type Campaign = {
 export type BlogPost = {
   id: string
   campaign_id: string
+  title: string
   content: string
+  excerpt?: string
+  slug: string
+  featured_image_url?: string
+  content_image_1_url?: string
+  content_image_2_url?: string
+  tags?: string[]
+  meta_description?: string
+  is_published: boolean
   created_at: string
+  updated_at: string
 }
