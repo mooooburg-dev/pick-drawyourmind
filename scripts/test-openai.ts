@@ -6,7 +6,7 @@ config({ path: path.join(process.cwd(), '.env.local') })
 
 async function testOpenAI() {
   // 환경변수 로드 후 동적 import
-  const { generateBlogPost, generateContentImage } = await import('../lib/openai-blog-generator')
+  const { generateBlogPost } = await import('../lib/openai-blog-generator')
   console.log('OpenAI API 테스트 시작...')
   console.log('API 키 확인:', process.env.OPENAI_API_KEY ? '설정됨' : '설정되지 않음')
 
@@ -24,12 +24,8 @@ async function testOpenAI() {
   }
 
   try {
-    console.log('이미지 생성 테스트...')
-    const imageUrl = await generateContentImage('패션')
-    console.log('생성된 이미지 URL:', imageUrl)
-
     console.log('블로그 포스트 생성 테스트...')
-    const blogPost = await generateBlogPost(testCampaign, imageUrl)
+    const blogPost = await generateBlogPost(testCampaign)
 
     console.log('✅ 성공!')
     console.log('제목:', blogPost.title)
