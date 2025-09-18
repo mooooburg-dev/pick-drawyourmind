@@ -1,42 +1,43 @@
-'use client'
+'use client';
 
-import { useEffect, useState, useCallback } from 'react'
-import Image from 'next/image'
-import { Campaign } from '@/lib/supabase'
+import { useEffect, useState, useCallback } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { Campaign } from '@/lib/supabase';
 
 export default function Home() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([])
-  const [loading, setLoading] = useState(true)
-  const [selectedCategory, setSelectedCategory] = useState('all')
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const fetchCampaigns = useCallback(async () => {
     try {
-      setLoading(true)
+      setLoading(true);
       const params = new URLSearchParams({
         limit: '20',
-        offset: '0'
-      })
+        offset: '0',
+      });
 
       if (selectedCategory !== 'all') {
-        params.append('category', selectedCategory)
+        params.append('category', selectedCategory);
       }
 
-      const response = await fetch(`/api/campaigns?${params}`)
-      const result = await response.json()
+      const response = await fetch(`/api/campaigns?${params}`);
+      const result = await response.json();
 
       if (result.success) {
-        setCampaigns(result.data)
+        setCampaigns(result.data);
       }
     } catch (error) {
-      console.error('캠페인 로딩 실패:', error)
+      console.error('캠페인 로딩 실패:', error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [selectedCategory])
+  }, [selectedCategory]);
 
   useEffect(() => {
-    fetchCampaigns()
-  }, [fetchCampaigns])
+    fetchCampaigns();
+  }, [fetchCampaigns]);
 
   const categories = [
     { value: 'all', label: '전체' },
@@ -45,7 +46,7 @@ export default function Home() {
     { value: '뷰티', label: '뷰티' },
     { value: '전자제품', label: '전자제품' },
     { value: '홈리빙', label: '홈리빙' },
-  ]
+  ];
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -54,14 +55,21 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Pick
-              </h1>
-              <span className="ml-2 text-sm text-gray-500">
-                쿠팡 파트너스 기획전 갤러리
-              </span>
+              <h1 className="text-2xl font-bold text-gray-900">Pick</h1>
             </div>
             <div className="flex items-center space-x-4">
+              <Link
+                href="/blog"
+                className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+              >
+                블로그
+              </Link>
+              <Link
+                href="/admin"
+                className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+              >
+                관리자
+              </Link>
               <button
                 onClick={() => window.location.reload()}
                 className="text-sm text-gray-600 hover:text-gray-900"
@@ -102,9 +110,7 @@ export default function Home() {
           </div>
         ) : campaigns.length === 0 ? (
           <div className="text-center py-12">
-            <div className="text-gray-500 text-lg">
-              아직 기획전이 없습니다.
-            </div>
+            <div className="text-gray-500 text-lg">아직 기획전이 없습니다.</div>
             <p className="text-gray-400 text-sm mt-2">
               곧 새로운 기획전이 업데이트될 예정입니다.
             </p>
@@ -133,19 +139,21 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-500 text-sm">
             <p>© 2024 Pick. All rights reserved.</p>
-            <p className="mt-1">쿠팡 파트너스 활동으로 일정 수수료를 받을 수 있습니다.</p>
+            <p className="mt-1">
+              쿠팡 파트너스 활동으로 일정 수수료를 받을 수 있습니다.
+            </p>
           </div>
         </div>
       </footer>
     </div>
-  )
+  );
 }
 
 function CampaignCard({ campaign }: { campaign: Campaign }) {
   const handleClick = () => {
     // 쿠팡 파트너스 링크로 직접 이동
-    window.open(campaign.partner_link, '_blank', 'noopener,noreferrer')
-  }
+    window.open(campaign.partner_link, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div
@@ -177,5 +185,5 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
         </div>
       </div>
     </div>
-  )
+  );
 }
