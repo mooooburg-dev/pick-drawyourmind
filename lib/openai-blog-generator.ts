@@ -70,9 +70,21 @@ HTML 구조에 다음 이미지들을 적절한 위치에 삽입해주세요:
 JSON 형식으로 응답:
 {
   "title": "제목",
-  "content": "HTML 본문 (h2, p, ul, li${
-    contentImage1Url && contentImage2Url ? ', img 태그' : ''
-  } 포함)",
+  "content": "HTML 본문 - 다음 구조를 사용하세요:
+    <h2>소제목</h2>
+    <p>단락 내용. 충분한 줄바꿈과 간격으로 가독성을 높여주세요.</p>
+    <h3>세부 소제목</h3>
+    <p>설명 내용</p>
+    <ul>
+      <li>리스트 항목 1</li>
+      <li>리스트 항목 2</li>
+    </ul>
+    ${
+      contentImage1Url && contentImage2Url
+        ? '<img src="이미지URL" alt="설명" />'
+        : ''
+    }
+    모든 텍스트는 충분한 대비를 위해 진한 색상으로 표시되도록 작성",
   "excerpt": "발췌문",
   "tags": ["태그1", "태그2", "태그3", "태그4", "태그5"],
   "metaDescription": "메타 디스크립션"

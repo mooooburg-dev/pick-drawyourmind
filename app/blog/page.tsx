@@ -1,38 +1,38 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { BlogPost } from '@/lib/supabase'
+import { useState, useEffect } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { BlogPost } from '@/lib/supabase';
 
 export default function BlogPage() {
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchBlogPosts()
-  }, [])
+    fetchBlogPosts();
+  }, []);
 
   const fetchBlogPosts = async () => {
     try {
-      setLoading(true)
-      const response = await fetch('/api/blog')
-      const result = await response.json()
+      setLoading(true);
+      const response = await fetch('/api/blog');
+      const result = await response.json();
 
       if (result.success) {
-        setBlogPosts(result.data)
-        setError(null)
+        setBlogPosts(result.data);
+        setError(null);
       } else {
-        setError(result.error || '블로그 포스트를 불러올 수 없습니다.')
+        setError(result.error || '블로그 포스트를 불러올 수 없습니다.');
       }
     } catch (error) {
-      console.error('블로그 포스트 로딩 실패:', error)
-      setError('블로그 포스트를 불러올 수 없습니다.')
+      console.error('블로그 포스트 로딩 실패:', error);
+      setError('블로그 포스트를 불러올 수 없습니다.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   if (loading) {
     return (
@@ -44,7 +44,7 @@ export default function BlogPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -68,13 +68,13 @@ export default function BlogPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div>
@@ -129,14 +129,16 @@ export default function BlogPage() {
 
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-3">
-                    {post.tags?.slice(0, 2).map((tag: string, index: number) => (
-                      <span
-                        key={index}
-                        className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
+                    {post.tags
+                      ?.slice(0, 2)
+                      .map((tag: string, index: number) => (
+                        <span
+                          key={index}
+                          className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full"
+                        >
+                          {tag}
+                        </span>
+                      ))}
                   </div>
 
                   <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2">
@@ -165,5 +167,5 @@ export default function BlogPage() {
         )}
       </main>
     </div>
-  )
+  );
 }

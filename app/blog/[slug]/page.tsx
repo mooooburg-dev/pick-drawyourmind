@@ -1,49 +1,49 @@
-'use client'
+'use client';
 
-import { useState, useEffect, use, useCallback } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { BlogPost, Campaign } from '@/lib/supabase'
+import { useState, useEffect, use, useCallback } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
+import { BlogPost, Campaign } from '@/lib/supabase';
 
 interface BlogPostWithCampaign extends BlogPost {
-  campaigns?: Campaign
+  campaigns?: Campaign;
 }
 
 interface BlogPostPageProps {
   params: Promise<{
-    slug: string
-  }>
+    slug: string;
+  }>;
 }
 
 export default function BlogPostPage({ params }: BlogPostPageProps) {
-  const { slug } = use(params)
-  const [post, setPost] = useState<BlogPostWithCampaign | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+  const { slug } = use(params);
+  const [post, setPost] = useState<BlogPostWithCampaign | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchBlogPost = useCallback(async () => {
     try {
-      setLoading(true)
-      const response = await fetch(`/api/blog/${slug}`)
-      const result = await response.json()
+      setLoading(true);
+      const response = await fetch(`/api/blog/${slug}`);
+      const result = await response.json();
 
       if (result.success) {
-        setPost(result.data)
-        setError(null)
+        setPost(result.data);
+        setError(null);
       } else {
-        setError(result.error || '블로그 포스트를 찾을 수 없습니다.')
+        setError(result.error || '블로그 포스트를 찾을 수 없습니다.');
       }
     } catch (error) {
-      console.error('블로그 포스트 로딩 실패:', error)
-      setError('블로그 포스트를 불러올 수 없습니다.')
+      console.error('블로그 포스트 로딩 실패:', error);
+      setError('블로그 포스트를 불러올 수 없습니다.');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }, [slug])
+  }, [slug]);
 
   useEffect(() => {
-    fetchBlogPost()
-  }, [fetchBlogPost])
+    fetchBlogPost();
+  }, [fetchBlogPost]);
 
   if (loading) {
     return (
@@ -55,7 +55,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !post) {
@@ -63,7 +63,9 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">포스트를 찾을 수 없습니다</h1>
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              포스트를 찾을 수 없습니다
+            </h1>
             <p className="text-gray-600 mb-6">{error}</p>
             <Link
               href="/blog"
@@ -74,26 +76,20 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center gap-4">
-            <Link
-              href="/blog"
-              className="text-blue-600 hover:text-blue-800"
-            >
+            <Link href="/blog" className="text-blue-600 hover:text-blue-800">
               ← 블로그로 돌아가기
             </Link>
             <span className="text-gray-300">|</span>
-            <Link
-              href="/"
-              className="text-blue-600 hover:text-blue-800"
-            >
+            <Link href="/" className="text-blue-600 hover:text-blue-800">
               홈으로
             </Link>
           </div>
@@ -138,7 +134,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
                 {new Date(post.created_at).toLocaleDateString('ko-KR', {
                   year: 'numeric',
                   month: 'long',
-                  day: 'numeric'
+                  day: 'numeric',
                 })}
               </time>
               {post.campaigns && (
@@ -150,7 +146,7 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           {/* Content */}
           <div className="bg-white rounded-lg shadow-sm p-8 mb-8">
             <div
-              className="prose prose-lg max-w-none"
+              className="blog-content"
               dangerouslySetInnerHTML={{ __html: post.content }}
             />
           </div>
@@ -158,7 +154,9 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
           {/* CTA Section */}
           {post.campaigns && (
             <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-8 text-white text-center">
-              <h3 className="text-2xl font-bold mb-4">지금 바로 확인해보세요!</h3>
+              <h3 className="text-2xl font-bold mb-4">
+                지금 바로 확인해보세요!
+              </h3>
               <p className="mb-6 opacity-90">
                 {post.campaigns.title}에서 특가 상품을 만나보세요
               </p>
@@ -175,5 +173,5 @@ export default function BlogPostPage({ params }: BlogPostPageProps) {
         </article>
       </main>
     </div>
-  )
+  );
 }
