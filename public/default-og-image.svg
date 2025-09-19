@@ -1,0 +1,31 @@
+<svg width="1200" height="630" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1D4ED8;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#grad1)"/>
+
+  <!-- Main Title -->
+  <text x="600" y="280" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="72" font-weight="bold">
+    Pick
+  </text>
+
+  <!-- Subtitle -->
+  <text x="600" y="350" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="36" opacity="0.9">
+    쿠팡 파트너스 기획전 갤러리
+  </text>
+
+  <!-- Description -->
+  <text x="600" y="420" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="24" opacity="0.8">
+    최신 쿠팡 기획전과 특가 상품 정보
+  </text>
+
+  <!-- URL -->
+  <text x="600" y="520" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="20" opacity="0.7">
+    pick.drawyourmind.com
+  </text>
+</svg>

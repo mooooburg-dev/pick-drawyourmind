@@ -51,7 +51,7 @@ export const metadata: Metadata = {
     siteName: 'Pick - 쿠팡 파트너스 기획전 갤러리',
     images: [
       {
-        url: '/og-image.png',
+        url: '/og-image.svg',
         width: 1200,
         height: 630,
         alt: 'Pick - 쿠팡 파트너스 기획전 갤러리',
@@ -64,7 +64,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Pick | 쿠팡 파트너스 기획전 갤러리',
     description: '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보를 확인하세요.',
-    images: ['/og-image.png'],
+    images: ['/og-image.svg'],
     creator: '@pick_deals',
   },
   robots: {
