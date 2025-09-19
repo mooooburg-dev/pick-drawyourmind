@@ -32,12 +32,31 @@ export default function BlogPostClient({ initialPost, slug }: BlogPostClientProp
   const fetchBlogPost = useCallback(async () => {
     try {
       setLoading(true);
+
+      // 간단한 세션 저장소 캐싱 (5분)
+      const cacheKey = `blog_post_${slug}`;
+      const cacheTimeKey = `blog_post_${slug}_time`;
+      const cacheTime = sessionStorage.getItem(cacheTimeKey);
+      const cachedData = sessionStorage.getItem(cacheKey);
+
+      if (cacheTime && cachedData && Date.now() - parseInt(cacheTime) < 300000) {
+        // 캐시된 데이터가 5분 이내면 사용
+        setPost(JSON.parse(cachedData));
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(`/api/blog/${slug}`);
       const result = await response.json();
 
       if (result.success) {
         setPost(result.data);
         setError(null);
+
+        // 캐시에 저장
+        sessionStorage.setItem(cacheKey, JSON.stringify(result.data));
+        sessionStorage.setItem(cacheTimeKey, Date.now().toString());
       } else {
         setError(result.error || '블로그 포스트를 찾을 수 없습니다.');
       }

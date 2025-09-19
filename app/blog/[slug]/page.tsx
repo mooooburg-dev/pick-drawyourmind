@@ -23,7 +23,7 @@ async function getBlogPostData(slug: string): Promise<BlogPostWithCampaign | nul
       : 'http://localhost:3003'; // Updated to match current dev server port
 
     const response = await fetch(`${baseUrl}/api/blog/${slug}`, {
-      cache: 'no-store', // Always fetch fresh data for SEO
+      next: { revalidate: 300 }, // 5분마다 재검증
     });
 
     if (!response.ok) {

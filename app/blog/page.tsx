@@ -66,12 +66,31 @@ export default function BlogPage() {
   const fetchBlogPosts = async () => {
     try {
       setLoading(true);
+
+      // 간단한 세션 저장소 캐싱 (2분)
+      const cacheKey = 'blog_posts_cache';
+      const cacheTimeKey = 'blog_posts_cache_time';
+      const cacheTime = sessionStorage.getItem(cacheTimeKey);
+      const cachedData = sessionStorage.getItem(cacheKey);
+
+      if (cacheTime && cachedData && Date.now() - parseInt(cacheTime) < 120000) {
+        // 캐시된 데이터가 2분 이내면 사용
+        setBlogPosts(JSON.parse(cachedData));
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch('/api/blog');
       const result = await response.json();
 
       if (result.success) {
         setBlogPosts(result.data);
         setError(null);
+
+        // 캐시에 저장
+        sessionStorage.setItem(cacheKey, JSON.stringify(result.data));
+        sessionStorage.setItem(cacheTimeKey, Date.now().toString());
       } else {
         setError(result.error || '블로그 포스트를 불러올 수 없습니다.');
       }
@@ -208,14 +227,7 @@ export default function BlogPage() {
                       href={`/blog/${post.slug}`}
                       className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                       itemProp="url"
-                      prefetch={false}
-                      onClick={(e) => {
-                        // Ensure navigation works in production
-                        if (typeof window !== 'undefined') {
-                          e.preventDefault();
-                          window.location.href = `/blog/${post.slug}`;
-                        }
-                      }}
+                      prefetch={true}
                     >
                       자세히 보기 →
                     </Link>

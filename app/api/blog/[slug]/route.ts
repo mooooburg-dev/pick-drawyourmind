@@ -71,13 +71,18 @@ export async function GET(
       }
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: {
         ...blogPost,
         content // 수정된 content 반환
       }
     })
+
+    // 캐시 헤더 추가 (5분 캐시)
+    response.headers.set('Cache-Control', 'public, s-maxage=300, stale-while-revalidate=600')
+
+    return response
 
   } catch (error) {
     console.error('API error:', error)

@@ -52,11 +52,16 @@ export async function GET(request: NextRequest) {
       .select('*', { count: 'exact', head: true })
       .eq('is_published', true)
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: blogPosts || [],
       count: count || 0
     })
+
+    // 캐시 헤더 추가 (2분 캐시)
+    response.headers.set('Cache-Control', 'public, s-maxage=120, stale-while-revalidate=300')
+
+    return response
 
   } catch (error) {
     console.error('API error:', error)
