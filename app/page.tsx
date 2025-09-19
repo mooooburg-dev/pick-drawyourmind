@@ -39,23 +39,30 @@ export default function Home() {
     if (typeof window === 'undefined') return;
 
     // Update document title based on selected category
-    const categoryLabel = categories.find(cat => cat.value === selectedCategory)?.label || '전체';
-    const title = selectedCategory === 'all'
-      ? 'Pick | 쿠팡 파트너스 기획전 갤러리'
-      : `${categoryLabel} 기획전 | Pick - 쿠팡 특가 갤러리`;
+    const categoryLabel =
+      categories.find((cat) => cat.value === selectedCategory)?.label || '전체';
+    const title =
+      selectedCategory === 'all'
+        ? 'Pick | 쿠팡 파트너스 기획전 갤러리'
+        : `${categoryLabel} 기획전 | Pick - 쿠팡 특가 갤러리`;
 
     document.title = title;
 
     // Update meta description
-    const description = selectedCategory === 'all'
-      ? '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보와 매일 업데이트되는 쿠팡 파트너스 프로모션을 확인하세요.'
-      : `${categoryLabel} 카테고리의 최신 쿠팡 기획전과 특가 상품을 확인하세요. 매일 업데이트되는 ${categoryLabel} 관련 할인 혜택을 놓치지 마세요.`;
+    const description =
+      selectedCategory === 'all'
+        ? '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보와 매일 업데이트되는 쿠팡 파트너스 프로모션을 확인하세요.'
+        : `${categoryLabel} 카테고리의 최신 쿠팡 기획전과 특가 상품을 확인하세요. 매일 업데이트되는 ${categoryLabel} 관련 할인 혜택을 놓치지 마세요.`;
 
     updateMetaTag('description', description);
 
     // Update keywords based on category
-    const baseKeywords = '쿠팡, 기획전, 특가, 할인, 이벤트, 프로모션, 쿠팡파트너스, 온라인쇼핑';
-    const categoryKeywords = selectedCategory !== 'all' ? `, ${categoryLabel}, ${categoryLabel}특가, ${categoryLabel}할인` : '';
+    const baseKeywords =
+      '쿠팡, 기획전, 특가, 할인, 이벤트, 프로모션, 쿠팡파트너스, 온라인쇼핑';
+    const categoryKeywords =
+      selectedCategory !== 'all'
+        ? `, ${categoryLabel}, ${categoryLabel}특가, ${categoryLabel}할인`
+        : '';
     updateMetaTag('keywords', baseKeywords + categoryKeywords);
 
     // Open Graph
@@ -73,8 +80,14 @@ export default function Home() {
     updateLinkTag('canonical', window.location.href);
   }, [selectedCategory]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const updateMetaTag = (name: string, content: string, attribute: string = 'name') => {
-    let meta = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement;
+  const updateMetaTag = (
+    name: string,
+    content: string,
+    attribute: string = 'name'
+  ) => {
+    let meta = document.querySelector(
+      `meta[${attribute}="${name}"]`
+    ) as HTMLMetaElement;
     if (!meta) {
       meta = document.createElement('meta');
       meta.setAttribute(attribute, name);
@@ -109,6 +122,17 @@ export default function Home() {
     { value: '뷰티', label: '뷰티' },
     { value: '전자제품', label: '전자제품' },
     { value: '홈리빙', label: '홈리빙' },
+    { value: '식품', label: '식품' },
+    { value: '출산육아', label: '출산육아' },
+    { value: '생활용품', label: '생활용품' },
+    { value: '가구', label: '가구' },
+    { value: '주방용품', label: '주방용품' },
+    { value: '문구', label: '문구' },
+    { value: '책', label: '책' },
+    { value: '아동', label: '아동' },
+    { value: '명품', label: '명품' },
+    { value: '스포츠', label: '스포츠' },
+    { value: '기타', label: '기타' },
   ];
 
   return (
@@ -198,7 +222,7 @@ export default function Home() {
       </main>
 
       {/* Footer */}
-      <footer className="bg-white border-t mt-16">
+      <footer className="bg-white border-t mt-16 border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-500 text-sm">
             <p>© 2024 Pick. All rights reserved.</p>
