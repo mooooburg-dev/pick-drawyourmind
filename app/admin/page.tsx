@@ -183,7 +183,7 @@ export default function AdminPage() {
     setEditingCampaign(campaign);
     setEditForm({
       title: campaign.title,
-      category: campaign.category,
+      category: campaign.category || '',
       image_url: campaign.image_url,
       partner_link: campaign.partner_link,
     });
