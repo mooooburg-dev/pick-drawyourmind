@@ -39,11 +39,16 @@ export async function GET(request: Request) {
       )
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data: data || [],
       count: data?.length || 0
     })
+
+    // 캐시 헤더 추가 (3분 캐시)
+    response.headers.set('Cache-Control', 'public, s-maxage=180, stale-while-revalidate=360')
+
+    return response
   } catch (error) {
     console.error('API 오류:', error)
     return NextResponse.json(

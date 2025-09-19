@@ -6,27 +6,42 @@ import Link from 'next/link';
 import { Campaign } from '@/lib/supabase';
 
 export default function Home() {
-  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [allCampaigns, setAllCampaigns] = useState<Campaign[]>([]);
+  const [filteredCampaigns, setFilteredCampaigns] = useState<Campaign[]>([]);
   const [loading, setLoading] = useState(true);
+  const [filtering, setFiltering] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
 
-  const fetchCampaigns = useCallback(async () => {
+  const fetchAllCampaigns = useCallback(async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams({
-        limit: '20',
-        offset: '0',
-      });
 
-      if (selectedCategory !== 'all') {
-        params.append('category', selectedCategory);
+      // 간단한 세션 저장소 캐싱 (3분)
+      const cacheKey = 'all_campaigns_cache';
+      const cacheTimeKey = 'all_campaigns_cache_time';
+      const cacheTime = sessionStorage.getItem(cacheTimeKey);
+      const cachedData = sessionStorage.getItem(cacheKey);
+
+      if (cacheTime && cachedData && Date.now() - parseInt(cacheTime) < 180000) {
+        // 캐시된 데이터가 3분 이내면 사용
+        const campaigns = JSON.parse(cachedData);
+        setAllCampaigns(campaigns);
+        filterCampaigns(campaigns, selectedCategory);
+        setLoading(false);
+        return;
       }
 
-      const response = await fetch(`/api/campaigns?${params}`);
+      // 모든 캠페인을 한 번에 로드 (limit을 크게 설정)
+      const response = await fetch('/api/campaigns?limit=100&offset=0');
       const result = await response.json();
 
       if (result.success) {
-        setCampaigns(result.data);
+        setAllCampaigns(result.data);
+        filterCampaigns(result.data, selectedCategory);
+
+        // 캐시에 저장
+        sessionStorage.setItem(cacheKey, JSON.stringify(result.data));
+        sessionStorage.setItem(cacheTimeKey, Date.now().toString());
       }
     } catch (error) {
       console.error('캠페인 로딩 실패:', error);
@@ -34,6 +49,19 @@ export default function Home() {
       setLoading(false);
     }
   }, [selectedCategory]);
+
+  const filterCampaigns = useCallback((campaigns: Campaign[], category: string) => {
+    setFiltering(true);
+    // 부드러운 전환을 위해 약간의 딜레이 추가
+    setTimeout(() => {
+      if (category === 'all') {
+        setFilteredCampaigns(campaigns);
+      } else {
+        setFilteredCampaigns(campaigns.filter(campaign => campaign.category === category));
+      }
+      setFiltering(false);
+    }, 100);
+  }, []);
 
   const updateHomeMetadata = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -107,8 +135,13 @@ export default function Home() {
   };
 
   useEffect(() => {
-    fetchCampaigns();
-  }, [fetchCampaigns]);
+    fetchAllCampaigns();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    // 카테고리 변경시 클라이언트에서 즉시 필터링
+    filterCampaigns(allCampaigns, selectedCategory);
+  }, [selectedCategory, allCampaigns, filterCampaigns]);
 
   useEffect(() => {
     // Update homepage metadata for SEO when category changes
@@ -158,8 +191,16 @@ export default function Home() {
                 관리자
               </Link>
               <button
-                onClick={() => window.location.reload()}
+                onClick={() => {
+                  // 캐시 클리어 후 데이터 새로고침
+                  sessionStorage.removeItem('all_campaigns_cache');
+                  sessionStorage.removeItem('all_campaigns_cache_time');
+                  sessionStorage.removeItem('blog_posts_cache');
+                  sessionStorage.removeItem('blog_posts_cache_time');
+                  window.location.reload();
+                }}
                 className="text-sm text-gray-600 hover:text-gray-900"
+                title="캐시를 지우고 새로고침"
               >
                 새로고침
               </button>
@@ -195,7 +236,7 @@ export default function Home() {
           <div className="flex justify-center items-center h-64">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
-        ) : campaigns.length === 0 ? (
+        ) : filteredCampaigns.length === 0 ? (
           <div className="text-center py-12">
             <div className="text-gray-500 text-lg">아직 기획전이 없습니다.</div>
             <p className="text-gray-400 text-sm mt-2">
@@ -205,8 +246,8 @@ export default function Home() {
         ) : (
           <>
             {/* Campaign Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-              {campaigns.map((campaign) => (
+            <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 transition-opacity duration-200 ${filtering ? 'opacity-50' : 'opacity-100'}`}>
+              {filteredCampaigns.map((campaign) => (
                 <CampaignCard key={campaign.id} campaign={campaign} />
               ))}
             </div>
