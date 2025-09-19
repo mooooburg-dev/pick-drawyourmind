@@ -41,6 +41,15 @@ export default function AdminPage() {
     null
   );
 
+  // 기획전 편집 상태
+  const [editingCampaign, setEditingCampaign] = useState<Campaign | null>(null);
+  const [editForm, setEditForm] = useState({
+    title: '',
+    category: '',
+    image_url: '',
+    partner_link: '',
+  });
+
   // 새 기획전 폼 상태
   const [newCampaign, setNewCampaign] = useState({
     title: '',
@@ -168,6 +177,59 @@ export default function AdminPage() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleEditCampaign = (campaign: Campaign) => {
+    setEditingCampaign(campaign);
+    setEditForm({
+      title: campaign.title,
+      category: campaign.category,
+      image_url: campaign.image_url,
+      partner_link: campaign.partner_link,
+    });
+  };
+
+  const handleSaveCampaign = async () => {
+    if (!editingCampaign) return;
+
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `/api/admin/campaigns/${editingCampaign.id}`,
+        {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(editForm),
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert('기획전이 수정되었습니다!');
+        setEditingCampaign(null);
+        fetchCampaigns();
+      } else {
+        alert('수정 실패: ' + result.error);
+      }
+    } catch (error) {
+      console.error('수정 실패:', error);
+      alert('수정 중 오류가 발생했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCampaign(null);
+    setEditForm({
+      title: '',
+      category: '',
+      image_url: '',
+      partner_link: '',
+    });
   };
 
   const handleDeleteCampaign = async (id: string) => {
@@ -309,7 +371,7 @@ export default function AdminPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
@@ -341,7 +403,7 @@ export default function AdminPage() {
       </header>
 
       {/* Tab Navigation */}
-      <div className="bg-white border-b">
+      <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8">
             <button
@@ -628,6 +690,298 @@ export default function AdminPage() {
               </div>
             )}
 
+            {/* 기획전 편집 모달 */}
+            {editingCampaign && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-xl shadow-xl max-w-2xl w-full m-4 max-h-[90vh] overflow-y-auto">
+                  {/* 모달 헤더 */}
+                  <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-8 py-6 border-b border-gray-100">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center">
+                          <svg
+                            className="w-5 h-5 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <h2 className="text-xl font-bold text-gray-900">
+                            기획전 수정
+                          </h2>
+                          <p className="text-sm text-gray-600 mt-1">
+                            기획전 정보를 수정하세요
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        onClick={handleCancelEdit}
+                        className="text-gray-400 hover:text-gray-600 transition-colors"
+                      >
+                        <svg
+                          className="w-6 h-6"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* 모달 본문 */}
+                  <div className="px-8 py-8">
+                    <div className="space-y-8">
+                      {/* 기본 정보 섹션 */}
+                      <div className="space-y-6">
+                        <div className="border-l-4 border-blue-500 pl-4">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                            기본 정보
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            기획전의 기본적인 정보를 수정하세요
+                          </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                          {/* 제목 */}
+                          <div className="md:col-span-2">
+                            <label className="block text-sm font-semibold text-gray-800 mb-3">
+                              제목 <span className="text-red-500">*</span>
+                            </label>
+                            <input
+                              type="text"
+                              value={editForm.title}
+                              onChange={(e) =>
+                                setEditForm({
+                                  ...editForm,
+                                  title: e.target.value,
+                                })
+                              }
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 placeholder-gray-400 text-base"
+                              placeholder="기획전 제목을 입력하세요"
+                              required
+                            />
+                          </div>
+
+                          {/* 카테고리 */}
+                          <div>
+                            <label className="block text-sm font-semibold text-gray-800 mb-3">
+                              카테고리 <span className="text-red-500">*</span>
+                            </label>
+                            <select
+                              value={editForm.category}
+                              onChange={(e) =>
+                                setEditForm({
+                                  ...editForm,
+                                  category: e.target.value,
+                                })
+                              }
+                              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 text-base"
+                            >
+                              <option value="일반">일반</option>
+                              <option value="패션">패션</option>
+                              <option value="뷰티">뷰티</option>
+                              <option value="전자제품">전자제품</option>
+                              <option value="홈리빙">홈리빙</option>
+                              <option value="식품">식품</option>
+                              <option value="출산육아">출산육아</option>
+                              <option value="생활용품">생활용품</option>
+                              <option value="가구">가구</option>
+                              <option value="주방용품">주방용품</option>
+                              <option value="문구">문구</option>
+                              <option value="책">책</option>
+                              <option value="아동">아동</option>
+                              <option value="명품">명품</option>
+                              <option value="스포츠">스포츠</option>
+                              <option value="기타">기타</option>
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* 이미지 섹션 */}
+                      <div className="space-y-6">
+                        <div className="border-l-4 border-green-500 pl-4">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                            이미지 설정
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            기획전에 표시될 이미지를 설정하세요
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">
+                            이미지 URL <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="url"
+                            value={editForm.image_url}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                image_url: e.target.value,
+                              })
+                            }
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 placeholder-gray-400 text-base"
+                            placeholder="https://example.com/image.jpg"
+                            required
+                          />
+
+                          {/* 이미지 미리보기 */}
+                          {editForm.image_url && (
+                            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                              <p className="text-sm font-medium text-gray-700 mb-3 flex items-center">
+                                <svg
+                                  className="w-4 h-4 mr-2 text-gray-500"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                                  />
+                                </svg>
+                                이미지 미리보기
+                              </p>
+                              <div className="relative w-40 h-40 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-white">
+                                <Image
+                                  src={editForm.image_url}
+                                  alt="미리보기"
+                                  fill
+                                  className="object-cover"
+                                  sizes="160px"
+                                  onError={(e) => {
+                                    const target = e.target as HTMLImageElement;
+                                    target.style.display = 'none';
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* 링크 섹션 */}
+                      <div className="space-y-6">
+                        <div className="border-l-4 border-purple-500 pl-4">
+                          <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                            링크 설정
+                          </h3>
+                          <p className="text-sm text-gray-600">
+                            파트너스 링크를 설정하세요
+                          </p>
+                        </div>
+
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-800 mb-3">
+                            파트너스 링크{' '}
+                            <span className="text-red-500">*</span>
+                          </label>
+                          <input
+                            type="url"
+                            value={editForm.partner_link}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                partner_link: e.target.value,
+                              })
+                            }
+                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white text-gray-900 placeholder-gray-400 text-base"
+                            placeholder="https://partners.coupang.com/..."
+                            required
+                          />
+                          <p className="mt-2 text-xs text-gray-500 flex items-center">
+                            <svg
+                              className="w-3 h-3 mr-1"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                              />
+                            </svg>
+                            쿠팡 파트너스 링크를 입력하세요
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* 액션 버튼 */}
+                      <div className="pt-6 border-t border-gray-200">
+                        <div className="flex justify-end space-x-4">
+                          <button
+                            type="button"
+                            onClick={handleCancelEdit}
+                            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200"
+                          >
+                            취소
+                          </button>
+                          <button
+                            type="button"
+                            onClick={handleSaveCampaign}
+                            disabled={loading}
+                            className="px-8 py-3 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white font-medium rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 flex items-center space-x-2"
+                          >
+                            {loading ? (
+                              <>
+                                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                                <span>저장 중...</span>
+                              </>
+                            ) : (
+                              <>
+                                <svg
+                                  className="w-4 h-4"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  viewBox="0 0 24 24"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth={2}
+                                    d="M5 13l4 4L19 7"
+                                  />
+                                </svg>
+                                <span>저장</span>
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* 기획전 목록 */}
             <div className="bg-white rounded-lg shadow">
               <div className="px-6 py-4 border-b border-gray-200">
@@ -713,6 +1067,12 @@ export default function AdminPage() {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                             <button
+                              onClick={() => handleEditCampaign(campaign)}
+                              className="text-blue-600 hover:text-blue-900"
+                            >
+                              수정
+                            </button>
+                            <button
                               onClick={() =>
                                 handleToggleActive(
                                   campaign.id,
@@ -729,7 +1089,7 @@ export default function AdminPage() {
                             </button>
                             <button
                               onClick={() => handleDeleteCampaign(campaign.id)}
-                              className="text-red-600 hover:text-red-900 ml-4"
+                              className="text-red-600 hover:text-red-900"
                             >
                               삭제
                             </button>
