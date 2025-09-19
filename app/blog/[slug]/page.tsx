@@ -16,15 +16,18 @@ interface BlogPostPageProps {
 // Server-side data fetching function
 async function getBlogPostData(slug: string): Promise<BlogPostWithCampaign | null> {
   try {
-    const baseUrl = process.env.VERCEL_URL
-      ? `https://${process.env.VERCEL_URL}`
-      : 'http://localhost:3000';
+    // Use absolute URL for both local and production
+    const isProduction = process.env.NODE_ENV === 'production';
+    const baseUrl = isProduction
+      ? 'https://pick-drawyourmind.vercel.app'
+      : 'http://localhost:3003'; // Updated to match current dev server port
 
     const response = await fetch(`${baseUrl}/api/blog/${slug}`, {
       cache: 'no-store', // Always fetch fresh data for SEO
     });
 
     if (!response.ok) {
+      console.error(`Failed to fetch blog post: ${response.status} ${response.statusText}`);
       return null;
     }
 

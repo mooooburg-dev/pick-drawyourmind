@@ -208,6 +208,14 @@ export default function BlogPage() {
                       href={`/blog/${post.slug}`}
                       className="text-blue-600 hover:text-blue-800 text-sm font-medium"
                       itemProp="url"
+                      prefetch={false}
+                      onClick={(e) => {
+                        // Ensure navigation works in production
+                        if (typeof window !== 'undefined') {
+                          e.preventDefault();
+                          window.location.href = `/blog/${post.slug}`;
+                        }
+                      }}
                     >
                       자세히 보기 →
                     </Link>
