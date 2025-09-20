@@ -84,13 +84,49 @@ export default function ShareMenu({
   onCopySuccess,
 }: ShareMenuProps) {
   const [shareMenuOpen, setShareMenuOpen] = useState(false);
+  const [shortUrl, setShortUrl] = useState<string | null>(null);
+  const [shortening, setShortening] = useState(false);
   const shareMenuRef = useRef<HTMLDivElement>(null);
 
+  // URL 단축 함수
+  const shortenUrl = async (originalUrl: string): Promise<string> => {
+    try {
+      setShortening(true);
+
+      // 캐시 확인
+      const cacheKey = `short_url_${btoa(originalUrl)}`;
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        return cached;
+      }
+
+      // TinyURL API 사용
+      const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(originalUrl)}`);
+      const shortUrl = await response.text();
+
+      if (shortUrl && shortUrl.startsWith('http')) {
+        // 캐시에 저장 (1시간)
+        sessionStorage.setItem(cacheKey, shortUrl);
+        return shortUrl;
+      }
+
+      throw new Error('Invalid response from TinyURL');
+    } catch (error) {
+      console.error('URL 단축 실패:', error);
+      return originalUrl; // 실패시 원본 URL 반환
+    } finally {
+      setShortening(false);
+    }
+  };
+
   const handleShare = async (platform: string) => {
+    // 공유용 URL 준비 (단축 URL 사용)
+    const shareUrl = shortUrl || await shortenUrl(url);
+
     switch (platform) {
       case 'copy':
         try {
-          await navigator.clipboard.writeText(url);
+          await navigator.clipboard.writeText(shareUrl);
           onCopySuccess?.();
         } catch (error) {
           console.error('URL 복사 실패:', error);
@@ -99,7 +135,7 @@ export default function ShareMenu({
       case 'facebook':
         window.open(
           `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
-            url
+            shareUrl
           )}`,
           '_blank'
         );
@@ -107,21 +143,21 @@ export default function ShareMenu({
       case 'twitter':
         window.open(
           `https://twitter.com/intent/tweet?url=${encodeURIComponent(
-            url
+            shareUrl
           )}&text=${encodeURIComponent(title)}`,
           '_blank'
         );
         break;
       case 'kakao':
         window.open(
-          `https://story.kakao.com/share?url=${encodeURIComponent(url)}`,
+          `https://story.kakao.com/share?url=${encodeURIComponent(shareUrl)}`,
           '_blank'
         );
         break;
       case 'naver':
         window.open(
           `https://share.naver.com/web/shareView?url=${encodeURIComponent(
-            url
+            shareUrl
           )}&title=${encodeURIComponent(title)}`,
           '_blank'
         );
@@ -129,6 +165,15 @@ export default function ShareMenu({
     }
     setShareMenuOpen(false);
   };
+
+  // 컴포넌트 마운트시 URL 미리 단축
+  useEffect(() => {
+    const preShorten = async () => {
+      const shortened = await shortenUrl(url);
+      setShortUrl(shortened);
+    };
+    preShorten();
+  }, [url]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -153,34 +198,60 @@ export default function ShareMenu({
     <div className="relative" ref={shareMenuRef}>
       <button
         onClick={() => setShareMenuOpen(!shareMenuOpen)}
-        className="flex items-center gap-2 px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm rounded-md transition-colors"
+        className="flex items-center gap-2 px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 text-sm rounded-md transition-colors relative"
       >
-        <svg
-          className="w-5 h-5"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
-          />
-        </svg>
+        {shortening ? (
+          <div className="w-5 h-5 animate-spin rounded-full border-2 border-blue-300 border-t-blue-600"></div>
+        ) : (
+          <svg
+            className="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z"
+            />
+          </svg>
+        )}
+        {shortUrl && shortUrl !== url && (
+          <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+        )}
       </button>
 
       {/* Share Menu */}
       {shareMenuOpen && (
-        <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10">
+        <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10">
+          {/* URL 단축 정보 */}
+          {shortUrl && shortUrl !== url && (
+            <div className="px-4 py-2 border-b border-gray-100 mb-2">
+              <div className="flex items-center gap-2 text-xs text-green-600">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                </svg>
+                <span>단축 URL 준비완료</span>
+              </div>
+              <div className="text-xs text-gray-500 mt-1 truncate">
+                {shortUrl}
+              </div>
+            </div>
+          )}
+
           {shareOptions.map((option) => (
             <button
               key={option.id}
               onClick={() => handleShare(option.id)}
               className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+              disabled={shortening}
             >
               <span className={option.color}>{option.icon}</span>
-              <span className="text-gray-700">{option.label}</span>
+              <span className={shortening ? 'text-gray-400' : 'text-gray-700'}>
+                {option.label}
+                {option.id === 'copy' && shortening && ' (준비중...)'}
+              </span>
             </button>
           ))}
         </div>
