@@ -32,6 +32,65 @@ export default function BlogPostClient({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  // 블로그 내용 중간에 파트너스 링크 버튼을 삽입하는 함수
+  const insertPartnerButtons = (content: string, partnerLink: string, campaignTitle: string) => {
+    if (!content || !partnerLink) return content;
+
+    // HTML을 파싱해서 적절한 위치 찾기
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(content, 'text/html');
+    const paragraphs = doc.querySelectorAll('p, h2, h3');
+
+    if (paragraphs.length < 3) return content; // 너무 짧은 글은 버튼 삽입 안함
+
+    // 첫 번째 버튼: 전체 길이의 1/3 지점
+    const firstButtonIndex = Math.floor(paragraphs.length / 3);
+    // 두 번째 버튼: 전체 길이의 2/3 지점
+    const secondButtonIndex = Math.floor((paragraphs.length * 2) / 3);
+
+    const partnerButtonHtml = `
+      <div class="my-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
+        <div class="text-center">
+          <div class="mb-4">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+              ⭐ 특가 혜택
+            </span>
+          </div>
+          <h4 class="text-lg font-bold text-gray-900 mb-3">
+            ${campaignTitle} 확인하기
+          </h4>
+          <p class="text-gray-600 mb-4 text-sm">
+            지금 바로 특가 혜택을 놓치지 마세요!
+          </p>
+          <a
+            href="${partnerLink}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
+          >
+            <span>기획전 확인하기</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    `;
+
+    // 첫 번째 버튼 삽입
+    if (paragraphs[firstButtonIndex]) {
+      paragraphs[firstButtonIndex].insertAdjacentHTML('afterend', partnerButtonHtml);
+    }
+
+    // 두 번째 버튼 삽입 (인덱스 조정 필요)
+    const updatedParagraphs = doc.querySelectorAll('p, h2, h3');
+    if (updatedParagraphs[secondButtonIndex + 1]) { // +1은 첫 번째 버튼이 추가되었기 때문
+      updatedParagraphs[secondButtonIndex + 1].insertAdjacentHTML('afterend', partnerButtonHtml);
+    }
+
+    return doc.body.innerHTML;
+  };
+
   const fetchBlogPost = useCallback(async () => {
     try {
       setLoading(true);
@@ -322,7 +381,11 @@ export default function BlogPostClient({
             <div
               className="blog-content"
               itemProp="articleBody"
-              dangerouslySetInnerHTML={{ __html: post.content }}
+              dangerouslySetInnerHTML={{
+                __html: post.campaigns?.partner_link
+                  ? insertPartnerButtons(post.content, post.campaigns.partner_link, post.campaigns.title)
+                  : post.content
+              }}
             />
 
             {/* Hidden SEO meta for structured data */}
