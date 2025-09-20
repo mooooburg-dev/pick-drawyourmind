@@ -33,7 +33,11 @@ export default function BlogPostClient({
   };
 
   // 블로그 내용 중간에 파트너스 링크 버튼을 삽입하는 함수
-  const insertPartnerButtons = (content: string, partnerLink: string, campaignTitle: string) => {
+  const insertPartnerButtons = (
+    content: string,
+    partnerLink: string,
+    campaignTitle: string
+  ) => {
     if (!content || !partnerLink) return content;
 
     // HTML을 파싱해서 적절한 위치 찾기
@@ -79,13 +83,20 @@ export default function BlogPostClient({
 
     // 첫 번째 버튼 삽입
     if (paragraphs[firstButtonIndex]) {
-      paragraphs[firstButtonIndex].insertAdjacentHTML('afterend', partnerButtonHtml);
+      paragraphs[firstButtonIndex].insertAdjacentHTML(
+        'afterend',
+        partnerButtonHtml
+      );
     }
 
     // 두 번째 버튼 삽입 (인덱스 조정 필요)
     const updatedParagraphs = doc.querySelectorAll('p, h2, h3');
-    if (updatedParagraphs[secondButtonIndex + 1]) { // +1은 첫 번째 버튼이 추가되었기 때문
-      updatedParagraphs[secondButtonIndex + 1].insertAdjacentHTML('afterend', partnerButtonHtml);
+    if (updatedParagraphs[secondButtonIndex + 1]) {
+      // +1은 첫 번째 버튼이 추가되었기 때문
+      updatedParagraphs[secondButtonIndex + 1].insertAdjacentHTML(
+        'afterend',
+        partnerButtonHtml
+      );
     }
 
     return doc.body.innerHTML;
@@ -233,7 +244,7 @@ export default function BlogPostClient({
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-2 md:px-4 py-4">
           <div className="flex items-center gap-4">
             <Link href="/blog" className="text-blue-600 hover:text-blue-800">
               ← 블로그로 돌아가기
@@ -247,7 +258,7 @@ export default function BlogPostClient({
       </header>
 
       {/* Blog Post */}
-      <main className="container mx-auto px-4 py-8">
+      <main className="container mx-auto px-2 md:px-4 py-8">
         <article className="max-w-4xl mx-auto">
           {/* Featured Image */}
           {post.featured_image_url && (
@@ -301,7 +312,7 @@ export default function BlogPostClient({
           </header>
 
           {/* Content */}
-          <div className="bg-white rounded-lg shadow-sm p-8 mb-8 relative">
+          <div className="bg-white rounded-lg shadow-sm p-4 md:p-8 mb-8 relative">
             {/* Action Buttons */}
             <div className="absolute top-4 right-4 flex items-center gap-2">
               {/* Share Button - Always visible */}
@@ -383,8 +394,12 @@ export default function BlogPostClient({
               itemProp="articleBody"
               dangerouslySetInnerHTML={{
                 __html: post.campaigns?.partner_link
-                  ? insertPartnerButtons(post.content, post.campaigns.partner_link, post.campaigns.title)
-                  : post.content
+                  ? insertPartnerButtons(
+                      post.content,
+                      post.campaigns.partner_link,
+                      post.campaigns.title
+                    )
+                  : post.content,
               }}
             />
 
@@ -424,7 +439,7 @@ export default function BlogPostClient({
 
           {/* CTA Section */}
           {post.campaigns && (
-            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-8 text-white text-center">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg p-4 md:p-8 text-white text-center">
               <h3 className="text-2xl font-bold mb-4">
                 지금 바로 확인해보세요!
               </h3>
