@@ -301,6 +301,14 @@ export default function AdminPage() {
         alert('블로그 포스트가 수정되었습니다!');
         setEditingPost(null);
         fetchBlogPosts();
+
+        // 저장 후 작성한 블로그 포스트 상세 페이지로 이동
+        if (editingPost.slug) {
+          window.open(`/blog/${editingPost.slug}`, '_blank');
+        } else {
+          // slug가 없는 경우 ID로 이동
+          window.open(`/blog/${editingPost.id}`, '_blank');
+        }
       } else {
         alert('수정 실패: ' + result.error);
       }
