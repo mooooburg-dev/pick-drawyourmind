@@ -15,7 +15,10 @@ interface BlogPostClientProps {
   slug: string;
 }
 
-export default function BlogPostClient({ initialPost, slug }: BlogPostClientProps) {
+export default function BlogPostClient({
+  initialPost,
+  slug,
+}: BlogPostClientProps) {
   const [post, setPost] = useState<BlogPostWithCampaign | null>(initialPost);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -39,7 +42,11 @@ export default function BlogPostClient({ initialPost, slug }: BlogPostClientProp
       const cacheTime = sessionStorage.getItem(cacheTimeKey);
       const cachedData = sessionStorage.getItem(cacheKey);
 
-      if (cacheTime && cachedData && Date.now() - parseInt(cacheTime) < 300000) {
+      if (
+        cacheTime &&
+        cachedData &&
+        Date.now() - parseInt(cacheTime) < 300000
+      ) {
         // 캐시된 데이터가 5분 이내면 사용
         setPost(JSON.parse(cachedData));
         setError(null);
@@ -202,7 +209,7 @@ export default function BlogPostClient({ initialPost, slug }: BlogPostClientProp
             itemScope
             itemType="https://schema.org/BlogPosting"
           >
-            <div className="flex items-center gap-2 mb-4">
+            <div className="flex flex-wrap items-center gap-2 mb-4">
               {post.tags?.map((tag: string, index: number) => (
                 <span
                   key={index}
