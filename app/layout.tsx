@@ -14,11 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Pick | 쿠팡 파트너스 기획전 갤러리',
+    default: 'Pick | 쿠팡 기획전 갤러리',
     template: '%s | Pick - 쿠팡 기획전',
   },
   description:
-    '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보와 매일 업데이트되는 쿠팡 파트너스 프로모션을 확인하세요.',
+    '최신 쿠팡 기획전과 이벤트를 한눈에! 먼데이픽이 엄선한 특가 상품 정보와 매일 업데이트되는 프로모션을 확인하세요.',
   keywords: [
     '쿠팡',
     '기획전',
@@ -26,15 +26,15 @@ export const metadata: Metadata = {
     '할인',
     '이벤트',
     '프로모션',
-    '쿠팡파트너스',
+    '쿠팡',
     '온라인쇼핑',
     '쇼핑몰',
     '세일',
-    '특가정보'
+    '특가정보',
   ],
   authors: [{ name: 'Pick Team' }],
   creator: 'Pick Team',
-  publisher: 'Pick - 쿠팡 파트너스 기획전 갤러리',
+  publisher: 'Pick - 기획전 갤러리',
   formatDetection: {
     email: false,
     address: false,
@@ -45,16 +45,17 @@ export const metadata: Metadata = {
     canonical: '/',
   },
   openGraph: {
-    title: 'Pick | 쿠팡 파트너스 기획전 갤러리',
-    description: '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보를 확인하세요.',
+    title: 'Pick | 쿠팡 갤러리',
+    description:
+      '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보를 확인하세요.',
     url: 'https://pick.drawyourmind.com',
-    siteName: 'Pick - 쿠팡 파트너스 기획전 갤러리',
+    siteName: 'Pick - 기획전 갤러리',
     images: [
       {
         url: '/og-image.svg',
         width: 1200,
         height: 630,
-        alt: 'Pick - 쿠팡 파트너스 기획전 갤러리',
+        alt: 'Pick - 기획전 갤러리',
       },
     ],
     locale: 'ko_KR',
@@ -62,8 +63,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pick | 쿠팡 파트너스 기획전 갤러리',
-    description: '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보를 확인하세요.',
+    title: 'Pick | 쿠팡 기획전 갤러리',
+    description:
+      '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보를 확인하세요.',
     images: ['/og-image.svg'],
     creator: '@pick_deals',
   },

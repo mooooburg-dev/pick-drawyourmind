@@ -22,7 +22,11 @@ export default function Home() {
       const cacheTime = sessionStorage.getItem(cacheTimeKey);
       const cachedData = sessionStorage.getItem(cacheKey);
 
-      if (cacheTime && cachedData && Date.now() - parseInt(cacheTime) < 180000) {
+      if (
+        cacheTime &&
+        cachedData &&
+        Date.now() - parseInt(cacheTime) < 180000
+      ) {
         // 캐시된 데이터가 3분 이내면 사용
         const campaigns = JSON.parse(cachedData);
         setAllCampaigns(campaigns);
@@ -50,18 +54,23 @@ export default function Home() {
     }
   }, [selectedCategory]);
 
-  const filterCampaigns = useCallback((campaigns: Campaign[], category: string) => {
-    setFiltering(true);
-    // 부드러운 전환을 위해 약간의 딜레이 추가
-    setTimeout(() => {
-      if (category === 'all') {
-        setFilteredCampaigns(campaigns);
-      } else {
-        setFilteredCampaigns(campaigns.filter(campaign => campaign.category === category));
-      }
-      setFiltering(false);
-    }, 100);
-  }, []);
+  const filterCampaigns = useCallback(
+    (campaigns: Campaign[], category: string) => {
+      setFiltering(true);
+      // 부드러운 전환을 위해 약간의 딜레이 추가
+      setTimeout(() => {
+        if (category === 'all') {
+          setFilteredCampaigns(campaigns);
+        } else {
+          setFilteredCampaigns(
+            campaigns.filter((campaign) => campaign.category === category)
+          );
+        }
+        setFiltering(false);
+      }, 100);
+    },
+    []
+  );
 
   const updateHomeMetadata = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -71,7 +80,7 @@ export default function Home() {
       categories.find((cat) => cat.value === selectedCategory)?.label || '전체';
     const title =
       selectedCategory === 'all'
-        ? 'Pick | 쿠팡 파트너스 기획전 갤러리'
+        ? 'Pick | 쿠팡 기획전 갤러리'
         : `${categoryLabel} 기획전 | Pick - 쿠팡 특가 갤러리`;
 
     document.title = title;
@@ -79,14 +88,14 @@ export default function Home() {
     // Update meta description
     const description =
       selectedCategory === 'all'
-        ? '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보와 매일 업데이트되는 쿠팡 파트너스 프로모션을 확인하세요.'
+        ? '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보와 매일 업데이트되는 쿠팡 프로모션을 확인하세요.'
         : `${categoryLabel} 카테고리의 최신 쿠팡 기획전과 특가 상품을 확인하세요. 매일 업데이트되는 ${categoryLabel} 관련 할인 혜택을 놓치지 마세요.`;
 
     updateMetaTag('description', description);
 
     // Update keywords based on category
     const baseKeywords =
-      '쿠팡, 기획전, 특가, 할인, 이벤트, 프로모션, 쿠팡파트너스, 온라인쇼핑';
+      '쿠팡, 기획전, 특가, 할인, 이벤트, 프로모션, 쿠팡, 온라인쇼핑';
     const categoryKeywords =
       selectedCategory !== 'all'
         ? `, ${categoryLabel}, ${categoryLabel}특가, ${categoryLabel}할인`
@@ -246,7 +255,11 @@ export default function Home() {
         ) : (
           <>
             {/* Campaign Grid */}
-            <div className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 transition-opacity duration-200 ${filtering ? 'opacity-50' : 'opacity-100'}`}>
+            <div
+              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 transition-opacity duration-200 ${
+                filtering ? 'opacity-50' : 'opacity-100'
+              }`}
+            >
               {filteredCampaigns.map((campaign) => (
                 <CampaignCard key={campaign.id} campaign={campaign} />
               ))}
@@ -268,7 +281,7 @@ export default function Home() {
           <div className="text-center text-gray-500 text-sm">
             <p>© 2024 Pick. All rights reserved.</p>
             <p className="mt-1">
-              쿠팡 파트너스 활동으로 일정 수수료를 받을 수 있습니다.
+              쿠팡 활동으로 일정 수수료를 받을 수 있습니다.
             </p>
           </div>
         </div>
@@ -279,7 +292,7 @@ export default function Home() {
 
 function CampaignCard({ campaign }: { campaign: Campaign }) {
   const handleClick = () => {
-    // 쿠팡 파트너스 링크로 직접 이동
+    // 쿠팡 링크로 직접 이동
     window.open(campaign.partner_link, '_blank', 'noopener,noreferrer');
   };
 

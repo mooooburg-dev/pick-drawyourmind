@@ -418,7 +418,7 @@ export default function BlogPostClient({
                 itemScope
                 itemType="https://schema.org/Organization"
               >
-                <span itemProp="name">Pick - 쿠팡 파트너스 기획전 갤러리</span>
+                <span itemProp="name">Pick - 쿠팡 기획전 갤러리</span>
                 <span itemProp="url">https://pick.drawyourmind.com</span>
               </span>
               {post.featured_image_url && (

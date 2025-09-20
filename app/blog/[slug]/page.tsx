@@ -14,7 +14,9 @@ interface BlogPostPageProps {
 }
 
 // Server-side data fetching function
-async function getBlogPostData(slug: string): Promise<BlogPostWithCampaign | null> {
+async function getBlogPostData(
+  slug: string
+): Promise<BlogPostWithCampaign | null> {
   try {
     // Use absolute URL for both local and production
     const isProduction = process.env.NODE_ENV === 'production';
@@ -27,7 +29,9 @@ async function getBlogPostData(slug: string): Promise<BlogPostWithCampaign | nul
     });
 
     if (!response.ok) {
-      console.error(`Failed to fetch blog post: ${response.status} ${response.statusText}`);
+      console.error(
+        `Failed to fetch blog post: ${response.status} ${response.statusText}`
+      );
       return null;
     }
 
@@ -40,7 +44,9 @@ async function getBlogPostData(slug: string): Promise<BlogPostWithCampaign | nul
 }
 
 // Generate metadata for SEO
-export async function generateMetadata({ params }: BlogPostPageProps): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: BlogPostPageProps): Promise<Metadata> {
   const { slug } = await params;
   const post = await getBlogPostData(slug);
 
@@ -51,7 +57,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     };
   }
 
-  const title = post.title || 'Pick - 쿠팡 파트너스 기획전';
+  const title = post.title || 'Pick - 쿠팡 기획전';
   const description =
     post.meta_description ||
     post.excerpt ||
@@ -75,7 +81,9 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
   };
 
   const imageUrl = getImageUrl();
-  const keywords = post.tags ? post.tags.join(', ') : '쿠팡, 파트너스, 특가, 쇼핑, 기획전';
+  const keywords = post.tags
+    ? post.tags.join(', ')
+    : '쿠팡, 특가, 쇼핑, 기획전';
 
   return {
     title,
@@ -83,7 +91,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     keywords: keywords.split(', '),
     authors: [{ name: 'Pick Team' }],
     creator: 'Pick Team',
-    publisher: 'Pick - 쿠팡 파트너스 기획전 갤러리',
+    publisher: 'Pick - 쿠팡 기획전 갤러리',
     openGraph: {
       title,
       description,
@@ -101,7 +109,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
           alt: title,
         },
       ],
-      siteName: 'Pick - 쿠팡 파트너스 기획전 갤러리',
+      siteName: 'Pick - 쿠팡 기획전 갤러리',
     },
     twitter: {
       card: 'summary_large_image',
@@ -139,7 +147,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
               포스트를 찾을 수 없습니다
             </h1>
-            <p className="text-gray-600 mb-6">요청하신 블로그 포스트를 찾을 수 없습니다.</p>
+            <p className="text-gray-600 mb-6">
+              요청하신 블로그 포스트를 찾을 수 없습니다.
+            </p>
             <Link
               href="/blog"
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md"

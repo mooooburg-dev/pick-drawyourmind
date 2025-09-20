@@ -17,28 +17,51 @@ export default function BlogPage() {
     document.title = '블로그 - Pick 특가 정보 및 기획전 소식';
 
     // Update meta description
-    updateMetaTag('description', 'AI가 엄선한 최신 쿠팡 기획전 정보와 특가 상품 리뷰를 확인하세요. 매일 업데이트되는 쇼핑 정보와 할인 혜택을 놓치지 마세요.');
+    updateMetaTag(
+      'description',
+      'AI가 엄선한 최신 쿠팡 기획전 정보와 특가 상품 리뷰를 확인하세요. 매일 업데이트되는 쇼핑 정보와 할인 혜택을 놓치지 마세요.'
+    );
 
     // Update keywords
-    updateMetaTag('keywords', '블로그, 특가정보, 기획전소식, 쿠팡리뷰, 할인정보, 쇼핑가이드, 상품추천, 세일정보');
+    updateMetaTag(
+      'keywords',
+      '블로그, 특가정보, 기획전소식, 쿠팡리뷰, 할인정보, 쇼핑가이드, 상품추천, 세일정보'
+    );
 
     // Open Graph
-    updateMetaTag('og:title', '블로그 - Pick 특가 정보 및 기획전 소식', 'property');
-    updateMetaTag('og:description', 'AI가 엄선한 최신 쿠팡 기획전 정보와 특가 상품 리뷰를 확인하세요.', 'property');
+    updateMetaTag(
+      'og:title',
+      '블로그 - Pick 특가 정보 및 기획전 소식',
+      'property'
+    );
+    updateMetaTag(
+      'og:description',
+      'AI가 엄선한 최신 쿠팡 기획전 정보와 특가 상품 리뷰를 확인하세요.',
+      'property'
+    );
     updateMetaTag('og:type', 'website', 'property');
     updateMetaTag('og:url', window.location.href, 'property');
 
     // Twitter Card
     updateMetaTag('twitter:card', 'summary_large_image');
     updateMetaTag('twitter:title', '블로그 - Pick 특가 정보 및 기획전 소식');
-    updateMetaTag('twitter:description', 'AI가 엄선한 최신 쿠팡 기획전 정보와 특가 상품 리뷰를 확인하세요.');
+    updateMetaTag(
+      'twitter:description',
+      'AI가 엄선한 최신 쿠팡 기획전 정보와 특가 상품 리뷰를 확인하세요.'
+    );
 
     // Canonical URL
     updateLinkTag('canonical', window.location.href);
   };
 
-  const updateMetaTag = (name: string, content: string, attribute: string = 'name') => {
-    let meta = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement;
+  const updateMetaTag = (
+    name: string,
+    content: string,
+    attribute: string = 'name'
+  ) => {
+    let meta = document.querySelector(
+      `meta[${attribute}="${name}"]`
+    ) as HTMLMetaElement;
     if (!meta) {
       meta = document.createElement('meta');
       meta.setAttribute(attribute, name);
@@ -73,7 +96,11 @@ export default function BlogPage() {
       const cacheTime = sessionStorage.getItem(cacheTimeKey);
       const cachedData = sessionStorage.getItem(cacheKey);
 
-      if (cacheTime && cachedData && Date.now() - parseInt(cacheTime) < 120000) {
+      if (
+        cacheTime &&
+        cachedData &&
+        Date.now() - parseInt(cacheTime) < 120000
+      ) {
         // 캐시된 데이터가 2분 이내면 사용
         setBlogPosts(JSON.parse(cachedData));
         setError(null);
@@ -160,7 +187,11 @@ export default function BlogPage() {
       </header>
 
       {/* Blog Posts */}
-      <main className="container mx-auto px-4 py-8" itemScope itemType="https://schema.org/Blog">
+      <main
+        className="container mx-auto px-4 py-8"
+        itemScope
+        itemType="https://schema.org/Blog"
+      >
         {blogPosts.length === 0 ? (
           <div className="text-center py-16">
             <h2 className="text-xl font-semibold text-gray-600 mb-2">
@@ -211,16 +242,26 @@ export default function BlogPage() {
                       ))}
                   </div>
 
-                  <h2 className="text-xl font-bold text-gray-900 mb-3 line-clamp-2" itemProp="headline">
+                  <h2
+                    className="text-xl font-bold text-gray-900 mb-3 line-clamp-2"
+                    itemProp="headline"
+                  >
                     {post.title}
                   </h2>
 
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3" itemProp="description">
+                  <p
+                    className="text-gray-600 text-sm mb-4 line-clamp-3"
+                    itemProp="description"
+                  >
                     {post.excerpt}
                   </p>
 
                   <div className="flex items-center justify-between">
-                    <time className="text-xs text-gray-500" itemProp="datePublished" dateTime={post.created_at}>
+                    <time
+                      className="text-xs text-gray-500"
+                      itemProp="datePublished"
+                      dateTime={post.created_at}
+                    >
                       {new Date(post.created_at).toLocaleDateString('ko-KR')}
                     </time>
                     <Link
@@ -235,17 +276,32 @@ export default function BlogPage() {
 
                   {/* Hidden SEO metadata */}
                   <div style={{ display: 'none' }}>
-                    <span itemProp="author" itemScope itemType="https://schema.org/Organization">
+                    <span
+                      itemProp="author"
+                      itemScope
+                      itemType="https://schema.org/Organization"
+                    >
                       <span itemProp="name">Pick Team</span>
                     </span>
-                    <span itemProp="publisher" itemScope itemType="https://schema.org/Organization">
-                      <span itemProp="name">Pick - 쿠팡 파트너스 기획전 갤러리</span>
+                    <span
+                      itemProp="publisher"
+                      itemScope
+                      itemType="https://schema.org/Organization"
+                    >
+                      <span itemProp="name">Pick - 큐레이션 갤러리</span>
                     </span>
                     {post.featured_image_url && (
-                      <img itemProp="image" src={post.featured_image_url} alt={post.title} />
+                      <img
+                        itemProp="image"
+                        src={post.featured_image_url}
+                        alt={post.title}
+                      />
                     )}
                     {post.updated_at && (
-                      <time itemProp="dateModified" dateTime={post.updated_at}></time>
+                      <time
+                        itemProp="dateModified"
+                        dateTime={post.updated_at}
+                      ></time>
                     )}
                   </div>
                 </div>

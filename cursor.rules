@@ -43,7 +43,7 @@ Next.js 15 + TypeScript + Tailwind CSS + Supabase를 사용한 쿠팡 파트너�
 
 ### 커밋 메시지 예시
 ```
-✨ feat: 쿠팡 파트너스 기획전 자동 크롤링 기능 추가
+✨ feat: 쿠팡 기획전 자동 크롤링 기능 추가
 🐛 fix: 갤러리 이미지 로딩 오류 수정
 📝 docs: README에 설치 가이드 추가
 💄 style: 갤러리 카드 디자인 개선
