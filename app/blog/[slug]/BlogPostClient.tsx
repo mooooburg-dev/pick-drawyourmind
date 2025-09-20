@@ -63,7 +63,7 @@ export default function BlogPostClient({
           <h4 class="text-lg font-bold text-gray-900 mb-3">
             ${campaignTitle} 확인하기
           </h4>
-          <p class="text-gray-600 mb-4 text-sm">
+          <p class="text-gray-600 mb-4 text-sm !text-center">
             지금 바로 특가 혜택을 놓치지 마세요!
           </p>
           <a
@@ -72,8 +72,8 @@ export default function BlogPostClient({
             rel="noopener noreferrer"
             class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold px-6 py-3 rounded-lg transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl"
           >
-            <span>기획전 확인하기</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <span class="text-white">기획전 확인하기</span>
+            <svg class="w-4 h-4" fill="none" stroke="white" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
@@ -232,7 +232,7 @@ export default function BlogPostClient({
               href="/blog"
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md"
             >
-              블로그로 돌아가기
+              목록 보기
             </Link>
           </div>
         </div>
@@ -247,7 +247,7 @@ export default function BlogPostClient({
         <div className="container mx-auto px-2 md:px-4 py-4">
           <div className="flex items-center gap-4">
             <Link href="/blog" className="text-blue-600 hover:text-blue-800">
-              ← 블로그로 돌아가기
+              ← 목록 보기
             </Link>
             <span className="text-gray-300">|</span>
             <Link href="/" className="text-blue-600 hover:text-blue-800">

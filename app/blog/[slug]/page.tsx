@@ -154,7 +154,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               href="/blog"
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md"
             >
-              블로그로 돌아가기
+              목록 보기
             </Link>
           </div>
         </div>
