@@ -74,10 +74,10 @@ export const clearContentCache = (): void => {
 };
 
 /**
- * 캐시 무효화 이벤트를 감지하는 훅
+ * 캐시 무효화 이벤트를 감지하는 유틸리티 함수
  */
-export const useCacheInvalidation = (callback: (eventType: string) => void) => {
-  if (typeof window === 'undefined') return;
+export const addCacheInvalidationListener = (callback: (eventType: string) => void) => {
+  if (typeof window === 'undefined') return () => {};
 
   const handleCacheInvalidated = (event: CustomEvent) => {
     callback(event.detail.type);
