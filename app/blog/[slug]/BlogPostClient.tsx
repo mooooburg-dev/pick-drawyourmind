@@ -12,16 +12,12 @@ interface BlogPostWithCampaign extends BlogPost {
 
 interface BlogPostClientProps {
   initialPost: BlogPostWithCampaign;
-  slug: string;
 }
 
 export default function BlogPostClient({
   initialPost,
-  slug,
 }: BlogPostClientProps) {
-  const [post, setPost] = useState<BlogPostWithCampaign | null>(initialPost);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [post] = useState<BlogPostWithCampaign | null>(initialPost);
   const [copied, setCopied] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
@@ -102,48 +98,6 @@ export default function BlogPostClient({
     return doc.body.innerHTML;
   };
 
-  const fetchBlogPost = useCallback(async () => {
-    try {
-      setLoading(true);
-
-      // 간단한 세션 저장소 캐싱 (5분)
-      const cacheKey = `blog_post_${slug}`;
-      const cacheTimeKey = `blog_post_${slug}_time`;
-      const cacheTime = sessionStorage.getItem(cacheTimeKey);
-      const cachedData = sessionStorage.getItem(cacheKey);
-
-      if (
-        cacheTime &&
-        cachedData &&
-        Date.now() - parseInt(cacheTime) < 300000
-      ) {
-        // 캐시된 데이터가 5분 이내면 사용
-        setPost(JSON.parse(cachedData));
-        setError(null);
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch(`/api/blog/${slug}`);
-      const result = await response.json();
-
-      if (result.success) {
-        setPost(result.data);
-        setError(null);
-
-        // 캐시에 저장
-        sessionStorage.setItem(cacheKey, JSON.stringify(result.data));
-        sessionStorage.setItem(cacheTimeKey, Date.now().toString());
-      } else {
-        setError(result.error || '블로그 포스트를 찾을 수 없습니다.');
-      }
-    } catch (error) {
-      console.error('블로그 포스트 로딩 실패:', error);
-      setError('블로그 포스트를 불러올 수 없습니다.');
-    } finally {
-      setLoading(false);
-    }
-  }, [slug]);
 
   useEffect(() => {
     // 관리자 인증 상태 확인
@@ -206,20 +160,7 @@ export default function BlogPostClient({
     window.open(editUrl, '_blank');
   }, [post?.id]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <p className="mt-2 text-gray-500">블로그 포스트를 불러오는 중...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error || !post) {
+  if (!post) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
@@ -227,7 +168,7 @@ export default function BlogPostClient({
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
               포스트를 찾을 수 없습니다
             </h1>
-            <p className="text-gray-600 mb-6">{error}</p>
+            <p className="text-gray-600 mb-6">요청하신 블로그 포스트를 찾을 수 없습니다.</p>
             <Link
               href="/blog"
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md"

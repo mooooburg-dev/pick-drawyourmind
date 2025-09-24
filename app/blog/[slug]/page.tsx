@@ -162,5 +162,5 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
     );
   }
 
-  return <BlogPostClient initialPost={post} slug={slug} />;
+  return <BlogPostClient initialPost={post} />;
 }
