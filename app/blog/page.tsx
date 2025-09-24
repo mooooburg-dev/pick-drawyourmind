@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BlogPost } from '@/lib/supabase';
+import { useCacheInvalidation } from '@/lib/cache-utils';
 
 export default function BlogPage() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
@@ -85,6 +86,18 @@ export default function BlogPage() {
     // Update page metadata for SEO
     updatePageMetadata();
   }, []); // Remove circular dependency
+
+  // 캐시 무효화 이벤트 감지하여 데이터 새로고침
+  useEffect(() => {
+    const cleanup = useCacheInvalidation((eventType) => {
+      if (eventType === 'all' || eventType === 'blog' || eventType === 'content') {
+        console.log('캐시 무효화 감지, 블로그 데이터 새로고침 중...');
+        fetchBlogPosts();
+      }
+    });
+
+    return cleanup;
+  }, []);
 
   const fetchBlogPosts = async () => {
     try {

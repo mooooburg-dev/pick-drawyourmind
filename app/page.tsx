@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Campaign } from '@/lib/supabase';
+import { clearAllCache, useCacheInvalidation } from '@/lib/cache-utils';
 
 export default function Home() {
   const [allCampaigns, setAllCampaigns] = useState<Campaign[]>([]);
@@ -147,6 +148,18 @@ export default function Home() {
     fetchAllCampaigns();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // 캐시 무효화 이벤트 감지하여 데이터 새로고침
+  useEffect(() => {
+    const cleanup = useCacheInvalidation((eventType) => {
+      if (eventType === 'all' || eventType === 'campaigns' || eventType === 'content') {
+        console.log('캐시 무효화 감지, 기획전 데이터 새로고침 중...');
+        fetchAllCampaigns();
+      }
+    });
+
+    return cleanup;
+  }, [fetchAllCampaigns]);
+
   useEffect(() => {
     // 카테고리 변경시 클라이언트에서 즉시 필터링
     filterCampaigns(allCampaigns, selectedCategory);
@@ -202,10 +215,7 @@ export default function Home() {
               <button
                 onClick={() => {
                   // 캐시 클리어 후 데이터 새로고침
-                  sessionStorage.removeItem('all_campaigns_cache');
-                  sessionStorage.removeItem('all_campaigns_cache_time');
-                  sessionStorage.removeItem('blog_posts_cache');
-                  sessionStorage.removeItem('blog_posts_cache_time');
+                  clearAllCache();
                   window.location.reload();
                 }}
                 className="text-sm text-gray-600 hover:text-gray-900"

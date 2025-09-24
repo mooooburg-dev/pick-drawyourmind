@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { Campaign, BlogPost } from '@/lib/supabase';
+import { clearContentCache, clearBlogCache } from '@/lib/cache-utils';
 
 // TinyMCE 에디터를 동적으로 로드 (SSR 방지)
 const Editor = dynamic(
@@ -168,6 +169,9 @@ export default function AdminPage() {
         });
         setShowAddForm(false);
         fetchCampaigns();
+
+        // 기획전과 블로그 캐시 무효화 (기획전 생성 시 블로그도 자동 생성됨)
+        clearContentCache();
       } else {
         alert('추가 실패: ' + result.error);
       }
@@ -211,6 +215,9 @@ export default function AdminPage() {
         alert('기획전이 수정되었습니다!');
         setEditingCampaign(null);
         fetchCampaigns();
+
+        // 기획전과 블로그 캐시 무효화 (기획전 생성 시 블로그도 자동 생성됨)
+        clearContentCache();
       } else {
         alert('수정 실패: ' + result.error);
       }
@@ -245,6 +252,9 @@ export default function AdminPage() {
       if (result.success) {
         alert('삭제되었습니다!');
         fetchCampaigns();
+
+        // 기획전과 블로그 캐시 무효화 (기획전 생성 시 블로그도 자동 생성됨)
+        clearContentCache();
       } else {
         alert('삭제 실패: ' + result.error);
       }
@@ -268,6 +278,9 @@ export default function AdminPage() {
 
       if (result.success) {
         fetchCampaigns();
+
+        // 기획전과 블로그 캐시 무효화 (기획전 생성 시 블로그도 자동 생성됨)
+        clearContentCache();
       } else {
         alert('상태 변경 실패: ' + result.error);
       }
@@ -302,6 +315,9 @@ export default function AdminPage() {
         setEditingPost(null);
         fetchBlogPosts();
 
+        // 블로그 페이지 캐시 무효화
+        clearBlogCache();
+
         // 저장 후 작성한 블로그 포스트 상세 페이지로 이동
         if (editingPost.slug) {
           window.open(`/blog/${editingPost.slug}`, '_blank');
@@ -331,6 +347,9 @@ export default function AdminPage() {
       if (result.success) {
         alert('블로그 포스트가 삭제되었습니다!');
         fetchBlogPosts();
+
+        // 블로그 페이지 캐시 무효화
+        clearBlogCache();
       } else {
         alert('삭제 실패: ' + result.error);
       }
@@ -647,7 +666,7 @@ export default function AdminPage() {
                               d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                             />
                           </svg>
-                          쿠팡 파트너스 링크를 입력하세요
+                          기획전 링크를 입력하세요
                         </p>
                       </div>
                     </div>
@@ -937,7 +956,7 @@ export default function AdminPage() {
                                 d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                               />
                             </svg>
-                            쿠팡 파트너스 링크를 입력하세요
+                            기획전 링크를 입력하세요
                           </p>
                         </div>
                       </div>
