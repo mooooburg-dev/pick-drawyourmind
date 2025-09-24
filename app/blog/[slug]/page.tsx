@@ -18,11 +18,11 @@ async function getBlogPostData(
   slug: string
 ): Promise<BlogPostWithCampaign | null> {
   try {
-    // Use absolute URL for both local and production
-    const isProduction = process.env.NODE_ENV === 'production';
-    const baseUrl = isProduction
-      ? 'https://pick-drawyourmind.vercel.app'
-      : 'http://localhost:3003'; // Updated to match current dev server port
+    // Use environment variable or fallback URLs
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://pick-drawyourmind.vercel.app'
+        : 'http://localhost:3002');
 
     const response = await fetch(`${baseUrl}/api/blog/${slug}`, {
       next: { revalidate: 300 }, // 5분마다 재검증
@@ -70,7 +70,7 @@ export async function generateMetadata({
       if (post.featured_image_url.startsWith('http')) {
         return post.featured_image_url;
       }
-      return `https://pick.drawyourmind.com${post.featured_image_url}`;
+      return `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com'}${post.featured_image_url}`;
     }
 
     if (post.campaigns?.image_url) {
