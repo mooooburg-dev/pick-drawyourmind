@@ -10,6 +10,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+      actions: read
+      metadata: read
 
     steps:
     - name: 코드 체크아웃
@@ -63,38 +65,43 @@ jobs:
         echo "current_date=$(date +'%Y년 %m월 %d일')" >> $GITHUB_OUTPUT
         echo "current_time=$(date +'%H:%M')" >> $GITHUB_OUTPUT
 
-    - name: GitHub CLI 설치
+    - name: 기존 PR 확인
+      id: check_existing_pr
       run: |
-        # Ubuntu에 GitHub CLI 설치
-        curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
-        && sudo chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
-        && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-        && sudo apt update \
-        && sudo apt install gh -y
+        # GitHub API로 기존 PR 확인
+        EXISTING_PR=$(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/${{ github.repository }}/pulls?head=${{ github.repository_owner }}:feature/local&base=main&state=open")
 
-    - name: GitHub CLI 인증
-      run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+        PR_COUNT=$(echo "$EXISTING_PR" | jq '. | length')
+        echo "existing_pr_count=$PR_COUNT" >> $GITHUB_OUTPUT
 
-    - name: 기존 PR 확인 및 생성
+        if [ "$PR_COUNT" -gt 0 ]; then
+          PR_URL=$(echo "$EXISTING_PR" | jq -r '.[0].html_url')
+          echo "existing_pr_url=$PR_URL" >> $GITHUB_OUTPUT
+          echo "기존 PR이 존재합니다: $PR_URL"
+        else
+          echo "기존 PR이 없습니다. 새로 생성합니다."
+        fi
+
+    - name: PR 본문 준비
+      id: pr_body
+      if: steps.check_existing_pr.outputs.existing_pr_count == '0'
       run: |
-        # 기존 PR 확인
-        if gh pr list --head feature/local --base main --json number --jq '. | length' | grep -q "0"; then
-          echo "새 PR 생성 중..."
-
-          # PR 본문 생성
-          PR_BODY=$(cat << 'EOF'
+        # PR 본문 생성 (GitHub Actions 변수 치환 포함)
+        cat > pr_body_template.md << 'EOF'
         ## 📋 배포 내용
 
-        **배포 일시:** ${{ steps.date.outputs.current_date }} ${{ steps.date.outputs.current_time }}
-        **배포 브랜치:** \`feature/local\` → \`main\`
+        **배포 일시:** DEPLOY_DATE DEPLOY_TIME
+        **배포 브랜치:** `feature/local` → `main`
 
         ## ✨ 주요 변경사항
 
-        ${{ steps.changes.outputs.commits }}
+        COMMIT_LIST
 
         ## 📁 수정된 파일들
 
-        ${{ steps.changes.outputs.changed_files }}
+        CHANGED_FILES
 
         ## 🔍 배포 전 체크리스트
 
@@ -115,21 +122,62 @@ jobs:
         ---
         *이 PR은 자동으로 생성되었습니다. 🤖*
         EOF
-        )
 
-          # PR 생성
-          gh pr create \
-            --title "🚀 MAIN 배포" \
-            --body "$PR_BODY" \
-            --head feature/local \
-            --base main
+        # 변수 치환
+        sed -i "s/DEPLOY_DATE/${{ steps.date.outputs.current_date }}/g" pr_body_template.md
+        sed -i "s/DEPLOY_TIME/${{ steps.date.outputs.current_time }}/g" pr_body_template.md
+        sed -i "s|COMMIT_LIST|${{ steps.changes.outputs.commits }}|g" pr_body_template.md
+        sed -i "s|CHANGED_FILES|${{ steps.changes.outputs.changed_files }}|g" pr_body_template.md
 
+        # 완성된 PR 본문을 output으로 설정
+        {
+          echo 'pr_body<<EOF'
+          cat pr_body_template.md
+          echo 'EOF'
+        } >> $GITHUB_OUTPUT
+
+    - name: GitHub API로 PR 생성
+      if: steps.check_existing_pr.outputs.existing_pr_count == '0'
+      run: |
+        # JSON 페이로드 생성
+        jq -n \
+          --arg title "🚀 MAIN 배포" \
+          --arg head "feature/local" \
+          --arg base "main" \
+          --arg body "${{ steps.pr_body.outputs.pr_body }}" \
+          --argjson draft false \
+          '{
+            title: $title,
+            head: $head,
+            base: $base,
+            body: $body,
+            draft: $draft
+          }' > pr_payload.json
+
+        # GitHub API를 통한 PR 생성
+        RESPONSE=$(curl -X POST \
+          -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          -H "Content-Type: application/json" \
+          "https://api.github.com/repos/${{ github.repository }}/pulls" \
+          -d @pr_payload.json)
+
+        # 응답 확인
+        PR_URL=$(echo "$RESPONSE" | jq -r '.html_url // empty')
+        if [ -n "$PR_URL" ]; then
           echo "✅ PR이 성공적으로 생성되었습니다!"
+          echo "🔗 PR URL: $PR_URL"
         else
-          echo "⚠️ feature/local → main PR이 이미 존재합니다."
-          echo "기존 PR 목록:"
-          gh pr list --head feature/local --base main
+          echo "❌ PR 생성에 실패했습니다."
+          echo "응답: $RESPONSE"
+          exit 1
         fi
+
+    - name: 기존 PR 알림
+      if: steps.check_existing_pr.outputs.existing_pr_count != '0'
+      run: |
+        echo "⚠️ feature/local → main PR이 이미 존재합니다."
+        echo "🔗 기존 PR: ${{ steps.check_existing_pr.outputs.existing_pr_url }}"
 
     - name: PR 생성 완료 알림
       run: |
