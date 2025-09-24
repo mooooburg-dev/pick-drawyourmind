@@ -1,0 +1,69 @@
+name: 자동 MAIN 배포 머지
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    if: startsWith(github.head_ref, 'feature/local')
+
+    steps:
+    - name: 코드 체크아웃
+      uses: actions/checkout@v4
+
+    - name: Node.js 설정
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+
+    - name: 의존성 설치
+      run: npm ci
+
+    - name: 린팅 검사
+      run: npm run lint || true
+
+    - name: 빌드 테스트
+      run: npm run build
+
+    - name: 빌드 성공 상태 업데이트
+      if: success()
+      run: |
+        echo "✅ 빌드가 성공적으로 완료되었습니다!"
+        echo "🚀 배포 준비가 완료되었습니다."
+
+  auto-approve-and-merge:
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: success() && startsWith(github.head_ref, 'feature/local')
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+    - name: PR 자동 승인
+      uses: juliangruber/approve-pull-request-action@v2
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        number: ${{ github.event.number }}
+
+    - name: PR 자동 머지
+      uses: pascalgn/merge-action@v0.15.6
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        merge_method: squash
+        merge_commit_message: |
+          🚀 MAIN 배포: feature/local → main
+
+          자동 배포된 변경사항:
+          ${{ github.event.pull_request.body }}
+
+    - name: 배포 완료 알림
+      if: success()
+      run: |
+        echo "🎉 MAIN 브랜치로 배포가 완료되었습니다!"
+        echo "⏰ 배포 시간: $(date +'%Y-%m-%d %H:%M:%S')"
+        echo "🔗 배포된 변경사항: ${{ github.event.pull_request.html_url }}"
