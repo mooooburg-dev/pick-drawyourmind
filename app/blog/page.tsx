@@ -1,17 +1,60 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BlogPost } from '@/lib/supabase';
-import { useCacheInvalidation } from '@/lib/cache-utils';
+import { addCacheInvalidationListener } from '@/lib/cache-utils';
 
 export default function BlogPage() {
   const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const updatePageMetadata = () => {
+  const fetchBlogPosts = useCallback(async () => {
+    try {
+      setLoading(true);
+
+      // 간단한 세션 저장소 캐싱 (2분)
+      const cacheKey = 'blog_posts_cache';
+      const cacheTimeKey = 'blog_posts_cache_time';
+      const cacheTime = sessionStorage.getItem(cacheTimeKey);
+      const cachedData = sessionStorage.getItem(cacheKey);
+
+      if (
+        cacheTime &&
+        cachedData &&
+        Date.now() - parseInt(cacheTime) < 120000
+      ) {
+        // 캐시된 데이터가 2분 이내면 사용
+        setBlogPosts(JSON.parse(cachedData));
+        setError(null);
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetch('/api/blog');
+      const result = await response.json();
+
+      if (result.success) {
+        setBlogPosts(result.data);
+        setError(null);
+
+        // 캐시에 저장
+        sessionStorage.setItem(cacheKey, JSON.stringify(result.data));
+        sessionStorage.setItem(cacheTimeKey, Date.now().toString());
+      } else {
+        setError(result.error || '블로그 포스트를 불러올 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('블로그 포스트 로딩 실패:', error);
+      setError('블로그 포스트를 불러올 수 없습니다.');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const updatePageMetadata = useCallback(() => {
     if (typeof window === 'undefined') return;
 
     // Update document title
@@ -53,7 +96,7 @@ export default function BlogPage() {
 
     // Canonical URL
     updateLinkTag('canonical', window.location.href);
-  };
+  }, []);
 
   const updateMetaTag = (
     name: string,
@@ -85,11 +128,11 @@ export default function BlogPage() {
     fetchBlogPosts();
     // Update page metadata for SEO
     updatePageMetadata();
-  }, []); // Remove circular dependency
+  }, [fetchBlogPosts, updatePageMetadata]);
 
   // 캐시 무효화 이벤트 감지하여 데이터 새로고침
   useEffect(() => {
-    const cleanup = useCacheInvalidation((eventType) => {
+    const cleanup = addCacheInvalidationListener((eventType) => {
       if (eventType === 'all' || eventType === 'blog' || eventType === 'content') {
         console.log('캐시 무효화 감지, 블로그 데이터 새로고침 중...');
         fetchBlogPosts();
@@ -97,50 +140,7 @@ export default function BlogPage() {
     });
 
     return cleanup;
-  }, []);
-
-  const fetchBlogPosts = async () => {
-    try {
-      setLoading(true);
-
-      // 간단한 세션 저장소 캐싱 (2분)
-      const cacheKey = 'blog_posts_cache';
-      const cacheTimeKey = 'blog_posts_cache_time';
-      const cacheTime = sessionStorage.getItem(cacheTimeKey);
-      const cachedData = sessionStorage.getItem(cacheKey);
-
-      if (
-        cacheTime &&
-        cachedData &&
-        Date.now() - parseInt(cacheTime) < 120000
-      ) {
-        // 캐시된 데이터가 2분 이내면 사용
-        setBlogPosts(JSON.parse(cachedData));
-        setError(null);
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch('/api/blog');
-      const result = await response.json();
-
-      if (result.success) {
-        setBlogPosts(result.data);
-        setError(null);
-
-        // 캐시에 저장
-        sessionStorage.setItem(cacheKey, JSON.stringify(result.data));
-        sessionStorage.setItem(cacheTimeKey, Date.now().toString());
-      } else {
-        setError(result.error || '블로그 포스트를 불러올 수 없습니다.');
-      }
-    } catch (error) {
-      console.error('블로그 포스트 로딩 실패:', error);
-      setError('블로그 포스트를 불러올 수 없습니다.');
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [fetchBlogPosts]);
 
   if (loading) {
     return (
