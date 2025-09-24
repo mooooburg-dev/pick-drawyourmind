@@ -631,13 +631,13 @@ export default function AdminPage() {
                           링크 설정
                         </h3>
                         <p className="text-sm text-gray-600">
-                          파트너스 링크를 설정하세요
+                          기획전 링크를 설정하세요
                         </p>
                       </div>
 
                       <div>
                         <label className="block text-sm font-semibold text-gray-800 mb-3">
-                          파트너스 링크 <span className="text-red-500">*</span>
+                          기획전 링크 <span className="text-red-500">*</span>
                         </label>
                         <input
                           type="url"
