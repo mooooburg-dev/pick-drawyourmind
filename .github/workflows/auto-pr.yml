@@ -86,51 +86,40 @@ jobs:
       id: pr_body
       if: steps.check_existing_pr.outputs.existing_pr_count == '0'
       run: |
-        # PR 본문 생성 (GitHub Actions 변수 치환 포함)
-        cat > pr_body_template.md << 'EOF'
-        ## 📋 배포 내용
-
-        **배포 일시:** DEPLOY_DATE DEPLOY_TIME
-        **배포 브랜치:** `feature/local` → `main`
-
-        ## ✨ 주요 변경사항
-
-        COMMIT_LIST
-
-        ## 📁 수정된 파일들
-
-        CHANGED_FILES
-
-        ## 🔍 배포 전 체크리스트
-
-        - [ ] 모든 기능이 정상적으로 작동하는지 확인
-        - [ ] 빌드가 성공적으로 완료되는지 확인
-        - [ ] 캐시 무효화 시스템이 정상 작동하는지 확인
-        - [ ] Open Graph 이미지가 올바르게 표시되는지 확인
-        - [ ] 모바일 반응형이 정상적으로 작동하는지 확인
-
-        ## 🚀 배포 후 확인사항
-
-        - [ ] 메인 페이지 로딩 확인
-        - [ ] 블로그 페이지 정상 동작 확인
-        - [ ] 관리자 페이지 기능 확인
-        - [ ] SEO 메타태그 정상 출력 확인
-        - [ ] 소셜 미디어 공유 시 OG 이미지 정상 표시 확인
-
-        ---
-        *이 PR은 자동으로 생성되었습니다. 🤖*
-        EOF
-
-        # 변수 치환
-        sed -i "s/DEPLOY_DATE/${{ steps.date.outputs.current_date }}/g" pr_body_template.md
-        sed -i "s/DEPLOY_TIME/${{ steps.date.outputs.current_time }}/g" pr_body_template.md
-        sed -i "s|COMMIT_LIST|${{ steps.changes.outputs.commits }}|g" pr_body_template.md
-        sed -i "s|CHANGED_FILES|${{ steps.changes.outputs.changed_files }}|g" pr_body_template.md
-
-        # 완성된 PR 본문을 output으로 설정
+        # PR 본문 직접 생성
         {
           echo 'pr_body<<EOF'
-          cat pr_body_template.md
+          echo '## 📋 배포 내용'
+          echo ''
+          echo '**배포 일시:** ${{ steps.date.outputs.current_date }} ${{ steps.date.outputs.current_time }}'
+          echo '**배포 브랜치:** `feature/local` → `main`'
+          echo ''
+          echo '## ✨ 주요 변경사항'
+          echo ''
+          echo '${{ steps.changes.outputs.commits }}'
+          echo ''
+          echo '## 📁 수정된 파일들'
+          echo ''
+          echo '${{ steps.changes.outputs.changed_files }}'
+          echo ''
+          echo '## 🔍 배포 전 체크리스트'
+          echo ''
+          echo '- [ ] 모든 기능이 정상적으로 작동하는지 확인'
+          echo '- [ ] 빌드가 성공적으로 완료되는지 확인'
+          echo '- [ ] 캐시 무효화 시스템이 정상 작동하는지 확인'
+          echo '- [ ] Open Graph 이미지가 올바르게 표시되는지 확인'
+          echo '- [ ] 모바일 반응형이 정상적으로 작동하는지 확인'
+          echo ''
+          echo '## 🚀 배포 후 확인사항'
+          echo ''
+          echo '- [ ] 메인 페이지 로딩 확인'
+          echo '- [ ] 블로그 페이지 정상 동작 확인'
+          echo '- [ ] 관리자 페이지 기능 확인'
+          echo '- [ ] SEO 메타태그 정상 출력 확인'
+          echo '- [ ] 소셜 미디어 공유 시 OG 이미지 정상 표시 확인'
+          echo ''
+          echo '---'
+          echo '*이 PR은 자동으로 생성되었습니다. 🤖*'
           echo 'EOF'
         } >> $GITHUB_OUTPUT
 
