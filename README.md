@@ -1,31 +1,24 @@
 # Pick - 쿠팡 기획전 갤러리
 
-쿠팡 기획전을 자동으로 수집하여 예쁘게 갤러리로 보여주고, AI로 블로그 포스팅을 자동 생성하는 웹사이트입니다.
+갤러리와 AI 블로그 포스팅 자동 생성하는 웹사이트입니다.
 
 ## 🎯 프로젝트 개요
 
-- **목표**: 쿠팡 기획전 자동 큐레이션 및 블로그 자동화 서비스
+- **목표**: 갤러리 및 블로그 자동화 서비스
 - **도메인**: pick.drawyourmind.com
-- **기술 스택**: Next.js 15 + TypeScript + Tailwind CSS + Supabase + Playwright + TinyMCE
+- **기술 스택**: Next.js 15 + TypeScript + Tailwind CSS + Supabase + TinyMCE
 
 ## 🚀 주요 기능
 
-### 1. 자동 크롤링
+### 1. 갤러리 웹사이트
 
-- 매일 자정 GitHub Actions를 통한 자동 크롤링
-- Playwright를 이용한 쿠팡 페이지 크롤링
-- 새로운 기획전 자동 감지 및 데이터 수집
-
-### 2. 갤러리 웹사이트
-
-- Pinterest 스타일 기획전 갤러리
+- Pinterest 스타일 갤러리
 - 카테고리별 필터링 기능
 - 반응형 디자인 (모바일 최적화)
-- 쿠팡 링크 직접 연결
 
-### 3. 블로그 시스템
+### 2. 블로그 시스템
 
-- **자동 블로그 생성**: OpenAI GPT를 이용한 기획전 기반 블로그 포스팅 자동 작성
+- **자동 블로그 생성**: OpenAI GPT를 이용한 블로그 포스팅 자동 작성
 - **관리자 패널**: 블로그 포스트 편집 및 관리 기능
 - **TinyMCE 에디터**: 전문적인 WYSIWYG 에디터로 블로그 편집
 - **프리미엄 기능**: AI Assistant, 스펠체크, 마크다운, Word/PDF 가져오기/내보내기
@@ -35,7 +28,6 @@
 - **Frontend**: Next.js 15 + TypeScript + Tailwind CSS
 - **Database**: Supabase (PostgreSQL + Storage)
 - **Editor**: TinyMCE (Premium WYSIWYG Editor)
-- **Automation**: Playwright + GitHub Actions
 - **AI**: OpenAI GPT API
 - **Deployment**: Vercel
 
@@ -52,7 +44,6 @@ cd pick-drawyourmind
 
 ```bash
 npm install
-npx playwright install
 ```
 
 ### 3. 환경변수 설정
@@ -70,10 +61,6 @@ OPENAI_API_KEY=your_openai_api_key
 
 # TinyMCE (Optional - using cloud CDN with API key)
 TINYMCE_API_KEY=your_tinymce_api_key
-
-# Coupang Partners
-COUPANG_PARTNERS_EMAIL=your_email
-COUPANG_PARTNERS_PASSWORD=your_password
 
 # Application
 NEXT_PUBLIC_SITE_URL=https://pick.drawyourmind.com
@@ -100,13 +87,7 @@ npm run dev
 - **기본 비밀번호**: `admin2024!`
 - **기능**: 기획전 관리, 블로그 포스트 편집, TinyMCE 에디터 사용
 
-## 🤖 크롤링 및 테스트
-
-### 수동 크롤링
-
-```bash
-npm run crawl
-```
+## 🤖 테스트
 
 ### OpenAI 테스트
 
@@ -114,20 +95,14 @@ npm run crawl
 npm run test:openai
 ```
 
-### API를 통한 크롤링
-
-```bash
-curl -X POST http://localhost:3000/api/crawl
-```
-
 ## 📊 데이터 구조
 
 ### campaigns 테이블
 
 - `id` (UUID): 고유 식별자
-- `title` (TEXT): 기획전 제목
+- `title` (TEXT): 제목
 - `image_url` (TEXT): 이미지 URL
-- `partner_link` (TEXT): 쿠팡 링크
+- `partner_link` (TEXT): 링크
 - `category` (TEXT): 카테고리
 - `start_date` (DATE): 시작일
 - `end_date` (DATE): 종료일
@@ -148,27 +123,22 @@ curl -X POST http://localhost:3000/api/crawl
 - `created_at` (TIMESTAMP): 생성일
 - `updated_at` (TIMESTAMP): 수정일
 
-## 🔄 자동화 워크플로우
+## 🔄 데이터 플로우
 
-1. **GitHub Actions** (매일 오전 3시)
+1. **관리자 패널** → 데이터 입력
    ↓
-2. **Playwright** → 쿠팡 크롤링
+2. **ChatGPT** → 블로그 포스팅 생성
    ↓
-3. **새 기획전 감지** → 이미지/데이터 수집
+3. **Supabase** → 데이터 저장
    ↓
-4. **ChatGPT** → 블로그 포스팅 생성
-   ↓
-5. **Supabase** → 데이터 저장
-   ↓
-6. **Vercel** → 자동 재배포
+4. **Vercel** → 자동 재배포
 
 ## 📝 API 엔드포인트
 
-### 기획전 API
+### 캠페인 API
 
-- `GET /api/campaigns` - 기획전 목록 조회
-- `GET /api/campaigns/[id]` - 특정 기획전 조회
-- `POST /api/crawl` - 크롤링 실행
+- `GET /api/campaigns` - 캠페인 목록 조회
+- `GET /api/campaigns/[id]` - 특정 캠페인 조회
 
 ### 블로그 API
 
@@ -177,10 +147,10 @@ curl -X POST http://localhost:3000/api/crawl
 
 ### 관리자 API
 
-- `GET /api/admin/campaigns/all` - 모든 기획전 조회 (관리자)
-- `POST /api/admin/campaigns` - 기획전 추가
-- `PATCH /api/admin/campaigns/[id]` - 기획전 수정
-- `DELETE /api/admin/campaigns/[id]` - 기획전 삭제
+- `GET /api/admin/campaigns/all` - 모든 캠페인 조회 (관리자)
+- `POST /api/admin/campaigns` - 캠페인 추가
+- `PATCH /api/admin/campaigns/[id]` - 캠페인 수정
+- `DELETE /api/admin/campaigns/[id]` - 캠페인 삭제
 - `GET /api/admin/blog` - 모든 블로그 포스트 조회 (관리자)
 - `PATCH /api/admin/blog/[id]` - 블로그 포스트 수정
 - `DELETE /api/admin/blog/[id]` - 블로그 포스트 삭제
@@ -195,14 +165,12 @@ curl -X POST http://localhost:3000/api/crawl
 
 ### GitHub Secrets 설정
 
-GitHub Actions를 위해 다음 secrets을 설정해야 합니다:
+필요한 환경변수:
 
 - `NEXT_PUBLIC_SUPABASE_URL`
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `OPENAI_API_KEY`
-- `COUPANG_PARTNERS_EMAIL`
-- `COUPANG_PARTNERS_PASSWORD`
 - `NEXT_PUBLIC_SITE_URL`
 
 ## 📄 라이선스
@@ -211,4 +179,4 @@ GitHub Actions를 위해 다음 secrets을 설정해야 합니다:
 
 ---
 
-**면책 조항**: 이 프로젝트는 쿠팡 활동을 통해 일정액의 수수료를 제공받을 수 있습니다.
+**면책 조항**: 이 프로젝트는 개인 학습용 프로젝트입니다.
