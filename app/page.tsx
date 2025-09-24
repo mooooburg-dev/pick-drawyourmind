@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Campaign } from '@/lib/supabase';
-import { clearAllCache, useCacheInvalidation } from '@/lib/cache-utils';
+import { clearAllCache, addCacheInvalidationListener } from '@/lib/cache-utils';
 
 export default function Home() {
   const [allCampaigns, setAllCampaigns] = useState<Campaign[]>([]);
@@ -12,6 +12,24 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [filtering, setFiltering] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const filterCampaigns = useCallback(
+    (campaigns: Campaign[], category: string) => {
+      setFiltering(true);
+      // 부드러운 전환을 위해 약간의 딜레이 추가
+      setTimeout(() => {
+        if (category === 'all') {
+          setFilteredCampaigns(campaigns);
+        } else {
+          setFilteredCampaigns(
+            campaigns.filter((campaign) => campaign.category === category)
+          );
+        }
+        setFiltering(false);
+      }, 100);
+    },
+    []
+  );
 
   const fetchAllCampaigns = useCallback(async () => {
     try {
@@ -53,25 +71,7 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  }, [selectedCategory]);
-
-  const filterCampaigns = useCallback(
-    (campaigns: Campaign[], category: string) => {
-      setFiltering(true);
-      // 부드러운 전환을 위해 약간의 딜레이 추가
-      setTimeout(() => {
-        if (category === 'all') {
-          setFilteredCampaigns(campaigns);
-        } else {
-          setFilteredCampaigns(
-            campaigns.filter((campaign) => campaign.category === category)
-          );
-        }
-        setFiltering(false);
-      }, 100);
-    },
-    []
-  );
+  }, [selectedCategory, filterCampaigns]);
 
   const updateHomeMetadata = useCallback(() => {
     if (typeof window === 'undefined') return;
@@ -150,7 +150,7 @@ export default function Home() {
 
   // 캐시 무효화 이벤트 감지하여 데이터 새로고침
   useEffect(() => {
-    const cleanup = useCacheInvalidation((eventType) => {
+    const cleanup = addCacheInvalidationListener((eventType) => {
       if (eventType === 'all' || eventType === 'campaigns' || eventType === 'content') {
         console.log('캐시 무효화 감지, 기획전 데이터 새로고침 중...');
         fetchAllCampaigns();
