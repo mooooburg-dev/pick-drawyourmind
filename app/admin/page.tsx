@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { Campaign, BlogPost } from '@/lib/supabase';
-import { clearContentCache, clearBlogCache } from '@/lib/cache-utils';
+import { clearContentCache, handleApiCacheInvalidation } from '@/lib/cache-utils';
 
 // TinyMCE 에디터를 동적으로 로드 (SSR 방지)
 const Editor = dynamic(
@@ -308,15 +308,15 @@ export default function AdminPage() {
         body: JSON.stringify(updatedPost),
       });
 
+      // API 응답 헤더에서 캐시 무효화 처리
+      handleApiCacheInvalidation(response);
+
       const result = await response.json();
 
       if (result.success) {
         alert('블로그 포스트가 수정되었습니다!');
         setEditingPost(null);
         fetchBlogPosts();
-
-        // 블로그 페이지 캐시 무효화
-        clearBlogCache();
 
         // 저장 후 작성한 블로그 포스트 상세 페이지로 이동
         if (editingPost.slug) {
@@ -342,14 +342,14 @@ export default function AdminPage() {
         method: 'DELETE',
       });
 
+      // API 응답 헤더에서 캐시 무효화 처리
+      handleApiCacheInvalidation(response);
+
       const result = await response.json();
 
       if (result.success) {
         alert('블로그 포스트가 삭제되었습니다!');
         fetchBlogPosts();
-
-        // 블로그 페이지 캐시 무효화
-        clearBlogCache();
       } else {
         alert('삭제 실패: ' + result.error);
       }

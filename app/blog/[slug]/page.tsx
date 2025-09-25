@@ -25,7 +25,10 @@ async function getBlogPostData(
         : 'http://localhost:3002');
 
     const response = await fetch(`${baseUrl}/api/blog/${slug}`, {
-      next: { revalidate: 300 }, // 5분마다 재검증
+      next: {
+        revalidate: 60, // 1분마다 재검증으로 단축
+        tags: [`blog-${slug}`] // 개별 블로그 포스트 캐시 태그
+      }
     });
 
     if (!response.ok) {
