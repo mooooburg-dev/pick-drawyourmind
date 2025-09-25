@@ -18,7 +18,8 @@ interface Props {
 
 async function getBlogPost(slug: string) {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
       (process.env.NODE_ENV === 'production'
         ? 'https://pick-drawyourmind.vercel.app'
         : 'http://localhost:3002');
@@ -108,7 +109,7 @@ export default async function Image({ params }: Props) {
             opacity: 0.7,
           }}
         >
-          쿠팡 기획전 정보와 특가 상품을 확인하세요
+          기획전 정보와 특가 상품을 확인하세요
         </div>
       </div>
     ),

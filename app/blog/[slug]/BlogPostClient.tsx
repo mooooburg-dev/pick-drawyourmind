@@ -14,9 +14,7 @@ interface BlogPostClientProps {
   initialPost: BlogPostWithCampaign;
 }
 
-export default function BlogPostClient({
-  initialPost,
-}: BlogPostClientProps) {
+export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
   const [post] = useState<BlogPostWithCampaign | null>(initialPost);
   const [copied, setCopied] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -98,7 +96,6 @@ export default function BlogPostClient({
     return doc.body.innerHTML;
   };
 
-
   useEffect(() => {
     // 관리자 인증 상태 확인
     const checkAdminAuth = () => {
@@ -168,7 +165,9 @@ export default function BlogPostClient({
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
               포스트를 찾을 수 없습니다
             </h1>
-            <p className="text-gray-600 mb-6">요청하신 블로그 포스트를 찾을 수 없습니다.</p>
+            <p className="text-gray-600 mb-6">
+              요청하신 블로그 포스트를 찾을 수 없습니다.
+            </p>
             <Link
               href="/blog"
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-md"
@@ -359,7 +358,7 @@ export default function BlogPostClient({
                 itemScope
                 itemType="https://schema.org/Organization"
               >
-                <span itemProp="name">Pick - 쿠팡 기획전 갤러리</span>
+                <span itemProp="name">Pick - 기획전 갤러리</span>
                 <span itemProp="url">https://pick.drawyourmind.com</span>
               </span>
               {post.featured_image_url && (
