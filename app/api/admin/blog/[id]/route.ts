@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidateTag } from 'next/cache'
 import { getSupabaseAdmin } from '@/lib/supabase'
 
 // 특정 블로그 포스트 수정
@@ -58,10 +59,24 @@ export async function PATCH(
       )
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data
     })
+
+    // 캐시 무효화 신호를 헤더에 추가
+    response.headers.set('X-Cache-Invalidate', 'blog')
+
+    // 개별 블로그 포스트 캐시도 무효화
+    if (data.slug) {
+      try {
+        revalidateTag(`blog-${data.slug}`)
+      } catch (error) {
+        console.log('Cache revalidation failed:', error)
+      }
+    }
+
+    return response
 
   } catch (error) {
     console.error('API error:', error)
@@ -111,10 +126,24 @@ export async function DELETE(
       )
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       success: true,
       data
     })
+
+    // 캐시 무효화 신호를 헤더에 추가
+    response.headers.set('X-Cache-Invalidate', 'blog')
+
+    // 개별 블로그 포스트 캐시도 무효화
+    if (data.slug) {
+      try {
+        revalidateTag(`blog-${data.slug}`)
+      } catch (error) {
+        console.log('Cache revalidation failed:', error)
+      }
+    }
+
+    return response
 
   } catch (error) {
     console.error('API error:', error)

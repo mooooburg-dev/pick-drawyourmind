@@ -89,3 +89,29 @@ export const addCacheInvalidationListener = (callback: (eventType: string) => vo
     window.removeEventListener(CACHE_INVALIDATED_EVENT, handleCacheInvalidated as EventListener);
   };
 };
+
+/**
+ * API 응답에서 캐시 무효화 헤더를 확인하고 적절한 캐시를 무효화합니다
+ */
+export const handleApiCacheInvalidation = (response: Response): void => {
+  if (typeof window === 'undefined') return;
+
+  const cacheInvalidateHeader = response.headers.get('X-Cache-Invalidate');
+
+  if (cacheInvalidateHeader) {
+    switch (cacheInvalidateHeader) {
+      case 'blog':
+        clearBlogCache();
+        break;
+      case 'campaigns':
+        clearCampaignsCache();
+        break;
+      case 'content':
+        clearContentCache();
+        break;
+      case 'all':
+        clearAllCache();
+        break;
+    }
+  }
+};
