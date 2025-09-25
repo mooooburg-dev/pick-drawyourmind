@@ -6,8 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint",
-    "crawl": "tsx scripts/crawl-campaigns.ts"
+    "lint": "eslint"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.57.4",
@@ -15,7 +14,6 @@
     "@uiw/react-md-editor": "^4.0.8",
     "next": "15.5.3",
     "openai": "^5.20.3",
-    "playwright": "^1.55.0",
     "react": "19.1.0",
     "react-dom": "19.1.0",
     "tinymce": "^8.1.1"
