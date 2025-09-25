@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
 
-export const alt = 'Pick - 쿠팡 기획전 갤러리';
+export const alt = 'Pick - 기획전 갤러리';
 export const size = {
   width: 1200,
   height: 630,
@@ -54,7 +54,7 @@ export default async function Image() {
             lineHeight: 1.2,
           }}
         >
-          최신 쿠팡 기획전과 이벤트를 한눈에!
+          최신 기획전과 이벤트를 한눈에!
         </div>
         <div
           style={{

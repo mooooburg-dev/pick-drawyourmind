@@ -63,7 +63,7 @@ export default function BlogPage() {
     // Update meta description
     updateMetaTag(
       'description',
-      'AI가 엄선한 최신 쿠팡 기획전 정보와 특가 상품 리뷰를 확인하세요. 매일 업데이트되는 쇼핑 정보와 할인 혜택을 놓치지 마세요.'
+      'AI가 엄선한 최신 기획전 정보와 특가 상품 리뷰를 확인하세요. 매일 업데이트되는 쇼핑 정보와 할인 혜택을 놓치지 마세요.'
     );
 
     // Update keywords
@@ -80,7 +80,7 @@ export default function BlogPage() {
     );
     updateMetaTag(
       'og:description',
-      'AI가 엄선한 최신 쿠팡 기획전 정보와 특가 상품 리뷰를 확인하세요.',
+      'AI가 엄선한 최신 기획전 정보와 특가 상품 리뷰를 확인하세요.',
       'property'
     );
     updateMetaTag('og:type', 'website', 'property');
@@ -91,7 +91,7 @@ export default function BlogPage() {
     updateMetaTag('twitter:title', '블로그 - Pick 특가 정보 및 기획전 소식');
     updateMetaTag(
       'twitter:description',
-      'AI가 엄선한 최신 쿠팡 기획전 정보와 특가 상품 리뷰를 확인하세요.'
+      'AI가 엄선한 최신 기획전 정보와 특가 상품 리뷰를 확인하세요.'
     );
 
     // Canonical URL
@@ -133,7 +133,11 @@ export default function BlogPage() {
   // 캐시 무효화 이벤트 감지하여 데이터 새로고침
   useEffect(() => {
     const cleanup = addCacheInvalidationListener((eventType) => {
-      if (eventType === 'all' || eventType === 'blog' || eventType === 'content') {
+      if (
+        eventType === 'all' ||
+        eventType === 'blog' ||
+        eventType === 'content'
+      ) {
         console.log('캐시 무효화 감지, 블로그 데이터 새로고침 중...');
         fetchBlogPosts();
       }

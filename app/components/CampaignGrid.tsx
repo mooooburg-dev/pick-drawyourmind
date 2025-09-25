@@ -9,9 +9,13 @@ interface CampaignGridProps {
   initialCampaigns?: Campaign[];
 }
 
-export default function CampaignGrid({ initialCampaigns = [] }: CampaignGridProps) {
-  const [allCampaigns, setAllCampaigns] = useState<Campaign[]>(initialCampaigns);
-  const [filteredCampaigns, setFilteredCampaigns] = useState<Campaign[]>(initialCampaigns);
+export default function CampaignGrid({
+  initialCampaigns = [],
+}: CampaignGridProps) {
+  const [allCampaigns, setAllCampaigns] =
+    useState<Campaign[]>(initialCampaigns);
+  const [filteredCampaigns, setFilteredCampaigns] =
+    useState<Campaign[]>(initialCampaigns);
   const [loading, setLoading] = useState(false);
   const [filtering, setFiltering] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -84,16 +88,16 @@ export default function CampaignGrid({ initialCampaigns = [] }: CampaignGridProp
       categories.find((cat) => cat.value === selectedCategory)?.label || '전체';
     const title =
       selectedCategory === 'all'
-        ? 'Pick | 쿠팡 기획전 갤러리'
-        : `${categoryLabel} 기획전 | Pick - 쿠팡 특가 갤러리`;
+        ? 'Pick | 기획전 갤러리'
+        : `${categoryLabel} 기획전 | Pick - 특가 갤러리`;
 
     document.title = title;
 
     // Update meta description
     const description =
       selectedCategory === 'all'
-        ? '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보와 매일 업데이트되는 쿠팡 프로모션을 확인하세요.'
-        : `${categoryLabel} 카테고리의 최신 쿠팡 기획전과 특가 상품을 확인하세요. 매일 업데이트되는 ${categoryLabel} 관련 할인 혜택을 놓치지 마세요.`;
+        ? '최신 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보와 매일 업데이트되는 프로모션을 확인하세요.'
+        : `${categoryLabel} 카테고리의 최신 기획전과 특가 상품을 확인하세요. 매일 업데이트되는 ${categoryLabel} 관련 할인 혜택을 놓치지 마세요.`;
 
     updateMetaTag('description', description);
 
@@ -157,7 +161,11 @@ export default function CampaignGrid({ initialCampaigns = [] }: CampaignGridProp
   // 캐시 무효화 이벤트 감지하여 데이터 새로고침
   useEffect(() => {
     const cleanup = addCacheInvalidationListener((eventType) => {
-      if (eventType === 'all' || eventType === 'campaigns' || eventType === 'content') {
+      if (
+        eventType === 'all' ||
+        eventType === 'campaigns' ||
+        eventType === 'content'
+      ) {
         console.log('캐시 무효화 감지, 기획전 데이터 새로고침 중...');
         fetchAllCampaigns();
       }
@@ -270,7 +278,7 @@ export default function CampaignGrid({ initialCampaigns = [] }: CampaignGridProp
 
 function CampaignCard({ campaign }: { campaign: Campaign }) {
   const handleClick = () => {
-    // 쿠팡 링크로 직접 이동
+    // 링크로 직접 이동
     window.open(campaign.partner_link, '_blank', 'noopener,noreferrer');
   };
 

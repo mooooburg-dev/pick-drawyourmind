@@ -10,7 +10,7 @@ export async function generateBlogPost(campaignData: {
 }): Promise<string> {
   try {
     const prompt = `
-쿠팡 기획전 정보를 바탕으로 블로그 포스팅을 작성해주세요.
+기획전 정보를 바탕으로 블로그 포스팅을 작성해주세요.
 
 기획전 정보:
 - 제목: ${campaignData.title}
@@ -42,7 +42,7 @@ export async function generateBlogPost(campaignData: {
         {
           role: 'system',
           content:
-            '당신은 쿠팡 마케팅에 특화된 블로그 작성 전문가입니다. 독자들이 관심을 가질 만한 매력적이고 자연스러운 포스팅을 작성합니다.',
+            '당신은 마케팅에 특화된 블로그 작성 전문가입니다. 독자들이 관심을 가질 만한 매력적이고 자연스러운 포스팅을 작성합니다.',
         },
         {
           role: 'user',

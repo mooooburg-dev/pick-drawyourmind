@@ -19,7 +19,8 @@ async function getBlogPostData(
 ): Promise<BlogPostWithCampaign | null> {
   try {
     // Use environment variable or fallback URLs
-    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
       (process.env.NODE_ENV === 'production'
         ? 'https://pick-drawyourmind.vercel.app'
         : 'http://localhost:3002');
@@ -27,8 +28,8 @@ async function getBlogPostData(
     const response = await fetch(`${baseUrl}/api/blog/${slug}`, {
       next: {
         revalidate: 60, // 1분마다 재검증으로 단축
-        tags: [`blog-${slug}`] // 개별 블로그 포스트 캐시 태그
-      }
+        tags: [`blog-${slug}`], // 개별 블로그 포스트 캐시 태그
+      },
     });
 
     if (!response.ok) {
@@ -60,7 +61,7 @@ export async function generateMetadata({
     };
   }
 
-  const title = post.title || 'Pick - 쿠팡 기획전';
+  const title = post.title || 'Pick - 기획전';
   const description =
     post.meta_description ||
     post.excerpt ||
@@ -73,7 +74,9 @@ export async function generateMetadata({
       if (post.featured_image_url.startsWith('http')) {
         return post.featured_image_url;
       }
-      return `${process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com'}${post.featured_image_url}`;
+      return `${
+        process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com'
+      }${post.featured_image_url}`;
     }
 
     if (post.campaigns?.image_url) {
@@ -94,7 +97,7 @@ export async function generateMetadata({
     keywords: keywords.split(', '),
     authors: [{ name: 'Pick Team' }],
     creator: 'Pick Team',
-    publisher: 'Pick - 쿠팡 기획전 갤러리',
+    publisher: 'Pick - 기획전 갤러리',
     openGraph: {
       title,
       description,
@@ -112,7 +115,7 @@ export async function generateMetadata({
           alt: title,
         },
       ],
-      siteName: 'Pick - 쿠팡 기획전 갤러리',
+      siteName: 'Pick - 기획전 갤러리',
     },
     twitter: {
       card: 'summary_large_image',

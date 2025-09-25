@@ -14,11 +14,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Pick | 쿠팡 기획전 갤러리',
-    template: '%s | Pick - 쿠팡 기획전',
+    default: 'Pick | 기획전 갤러리',
+    template: '%s | Pick - 기획전',
   },
   description:
-    '최신 쿠팡 기획전과 이벤트를 한눈에! 먼데이픽이 엄선한 특가 상품 정보와 매일 업데이트되는 프로모션을 확인하세요.',
+    '최신 기획전과 이벤트를 한눈에! 먼데이픽이 엄선한 특가 상품 정보와 매일 업데이트되는 프로모션을 확인하세요.',
   keywords: [
     '쿠팡',
     '기획전',
@@ -40,14 +40,16 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com'),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com'
+  ),
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Pick | 쿠팡 갤러리',
+    title: 'Pick | 갤러리',
     description:
-      '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보를 확인하세요.',
+      '최신 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보를 확인하세요.',
     url: process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com',
     siteName: 'Pick - 기획전 갤러리',
     images: [
@@ -63,9 +65,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Pick | 쿠팡 기획전 갤러리',
+    title: 'Pick | 기획전 갤러리',
     description:
-      '최신 쿠팡 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보를 확인하세요.',
+      '최신 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보를 확인하세요.',
     images: ['/api/og'],
     creator: '@pick_deals',
   },
