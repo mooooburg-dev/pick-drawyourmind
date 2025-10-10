@@ -18,12 +18,7 @@ export default function Header() {
             >
               블로그
             </Link>
-            <Link
-              href="/admin"
-              className="text-sm text-gray-600 hover:text-gray-900 font-medium"
-            >
-              관리자
-            </Link>
+
             <button
               onClick={() => {
                 // 캐시 클리어 후 데이터 새로고침
@@ -35,6 +30,12 @@ export default function Header() {
             >
               새로고침
             </button>
+            <Link
+              href="/admin"
+              className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+            >
+              🔒
+            </Link>
           </div>
         </div>
       </div>

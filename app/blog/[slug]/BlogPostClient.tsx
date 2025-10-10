@@ -267,6 +267,9 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
             </div>
           </header>
 
+          {/* Google AdSense */}
+          <GoogleAd className="my-8" />
+
           {/* Content */}
           <div className="bg-white rounded-lg shadow-sm p-4 md:p-8 mb-8 relative">
             {/* Action Buttons */}
