@@ -54,9 +54,7 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
               ⭐ 특가 혜택
             </span>
           </div>
-          <h4 class="text-lg font-bold text-gray-900 mb-3 whitespace-break-spaces">
-            ${campaignTitle} 확인하기
-          </h4>
+          <h4 class="text-lg font-bold text-gray-900 mb-3">${campaignTitle.trim()} 확인하기</h4>
           <p class="text-gray-600 mb-4 text-sm !text-center">
             지금 바로 특가 혜택을 놓치지 마세요!
           </p>
