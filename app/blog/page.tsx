@@ -5,6 +5,9 @@ import { Fragment } from 'react';
 import { BlogPost, getSupabase } from '@/lib/supabase';
 import GoogleAd from '@/components/GoogleAd';
 
+// 60초마다 데이터 재검증
+export const revalidate = 60;
+
 // 서버에서 블로그 포스트 데이터를 가져오는 함수 - Supabase에서 직접 가져오기
 async function getBlogPosts(): Promise<BlogPost[]> {
   try {

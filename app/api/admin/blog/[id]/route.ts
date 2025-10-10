@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { revalidateTag } from 'next/cache'
+import { revalidateTag, revalidatePath } from 'next/cache'
 import { getSupabaseAdmin } from '@/lib/supabase'
 
 // 특정 블로그 포스트 수정
@@ -64,6 +64,9 @@ export async function PATCH(
       data
     })
 
+    // 캐시 무효화 - 블로그 페이지 갱신
+    revalidatePath('/blog')
+
     // 캐시 무효화 신호를 헤더에 추가
     response.headers.set('X-Cache-Invalidate', 'blog')
 
@@ -71,6 +74,7 @@ export async function PATCH(
     if (data.slug) {
       try {
         revalidateTag(`blog-${data.slug}`)
+        revalidatePath(`/blog/${data.slug}`)
       } catch (error) {
         // 캐시 무효화 실패는 무시
       }
@@ -131,6 +135,9 @@ export async function DELETE(
       data
     })
 
+    // 캐시 무효화 - 블로그 페이지 갱신
+    revalidatePath('/blog')
+
     // 캐시 무효화 신호를 헤더에 추가
     response.headers.set('X-Cache-Invalidate', 'blog')
 
@@ -138,6 +145,7 @@ export async function DELETE(
     if (data.slug) {
       try {
         revalidateTag(`blog-${data.slug}`)
+        revalidatePath(`/blog/${data.slug}`)
       } catch (error) {
         // 캐시 무효화 실패는 무시
       }
