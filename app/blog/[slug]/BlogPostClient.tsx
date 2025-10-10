@@ -54,7 +54,7 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
               ⭐ 특가 혜택
             </span>
           </div>
-          <h4 class="text-lg font-bold text-gray-900 mb-3">
+          <h4 class="text-lg font-bold text-gray-900 mb-3 whitespace-break-spaces">
             ${campaignTitle} 확인하기
           </h4>
           <p class="text-gray-600 mb-4 text-sm !text-center">
@@ -271,7 +271,7 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
           <GoogleAd className="my-8" />
 
           {/* 쿠팡 파트너스 안내문 */}
-          <div className="bg-gray-100 rounded-lg shadow-sm md:p-8 mb-8 relative">
+          <div className="bg-gray-100 rounded-lg shadow-sm p-4 md:p-8 mb-8 relative">
             <p>
               이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의
               수수료를 제공받을 수 있습니다.
