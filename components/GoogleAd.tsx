@@ -6,6 +6,13 @@ interface GoogleAdProps {
   className?: string;
 }
 
+// AdSense 타입 정의
+declare global {
+  interface Window {
+    adsbygoogle?: Array<Record<string, unknown>>;
+  }
+}
+
 export default function GoogleAd({ className = '' }: GoogleAdProps) {
   const adRef = useRef<HTMLModElement>(null);
   const [adLoaded, setAdLoaded] = useState(false);
@@ -23,12 +30,12 @@ export default function GoogleAd({ className = '' }: GoogleAdProps) {
             return;
           }
 
-          if (!(window as any).adsbygoogle) {
+          if (!window.adsbygoogle) {
             setTimeout(loadAd, 100);
             return;
           }
 
-          ((window as any).adsbygoogle = (window as any).adsbygoogle || []).push({});
+          (window.adsbygoogle = window.adsbygoogle || []).push({});
           setAdLoaded(true);
         }
       } catch (error) {
