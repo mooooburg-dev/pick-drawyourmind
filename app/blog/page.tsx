@@ -1,7 +1,9 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Fragment } from 'react';
 import { BlogPost, getSupabase } from '@/lib/supabase';
+import GoogleAd from '@/components/GoogleAd';
 
 // 서버에서 블로그 포스트 데이터를 가져오는 함수 - Supabase에서 직접 가져오기
 async function getBlogPosts(): Promise<BlogPost[]> {
@@ -122,103 +124,111 @@ export default async function BlogPage() {
           </div>
         ) : (
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {blogPosts.map((post: BlogPost) => (
-              <article
-                key={post.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
-                itemScope
-                itemType="https://schema.org/BlogPosting"
-              >
-                {post.featured_image_url && (
-                  <div className="relative h-48 w-full">
-                    <Image
-                      src={post.featured_image_url}
-                      alt={post.title}
-                      fill
-                      className="object-cover"
-                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                    />
-                  </div>
-                )}
-
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    {post.tags
-                      ?.slice(0, 2)
-                      .map((tag: string, index: number) => (
-                        <span
-                          key={index}
-                          className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                  </div>
-
-                  <h2
-                    className="text-xl font-bold text-gray-900 mb-3 line-clamp-2"
-                    itemProp="headline"
-                  >
-                    {post.title}
-                  </h2>
-
-                  <p
-                    className="text-gray-600 text-sm mb-4 line-clamp-3"
-                    itemProp="description"
-                  >
-                    {post.excerpt}
-                  </p>
-
-                  <div className="flex items-center justify-between">
-                    <time
-                      className="text-xs text-gray-500"
-                      itemProp="datePublished"
-                      dateTime={post.created_at}
-                    >
-                      {new Date(post.created_at).toLocaleDateString('ko-KR')}
-                    </time>
-                    <Link
-                      href={`/blog/${post.slug}`}
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      itemProp="url"
-                      prefetch={true}
-                    >
-                      자세히 보기 →
-                    </Link>
-                  </div>
-
-                  {/* Hidden SEO metadata */}
-                  <div style={{ display: 'none' }}>
-                    <span
-                      itemProp="author"
-                      itemScope
-                      itemType="https://schema.org/Organization"
-                    >
-                      <span itemProp="name">pick.drawyourmind.com</span>
-                    </span>
-                    <span
-                      itemProp="publisher"
-                      itemScope
-                      itemType="https://schema.org/Organization"
-                    >
-                      <span itemProp="name">Pick - 큐레이션 갤러리</span>
-                    </span>
-                    {post.featured_image_url && (
-                      <img
-                        itemProp="image"
+            {blogPosts.map((post: BlogPost, index: number) => (
+              <Fragment key={post.id}>
+                <article
+                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow"
+                  itemScope
+                  itemType="https://schema.org/BlogPosting"
+                >
+                  {post.featured_image_url && (
+                    <div className="relative h-48 w-full">
+                      <Image
                         src={post.featured_image_url}
                         alt={post.title}
+                        fill
+                        className="object-cover"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       />
-                    )}
-                    {post.updated_at && (
+                    </div>
+                  )}
+
+                  <div className="p-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      {post.tags
+                        ?.slice(0, 2)
+                        .map((tag: string, index: number) => (
+                          <span
+                            key={index}
+                            className="px-2 py-1 bg-blue-100 text-blue-600 text-xs rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                    </div>
+
+                    <h2
+                      className="text-xl font-bold text-gray-900 mb-3 line-clamp-2"
+                      itemProp="headline"
+                    >
+                      {post.title}
+                    </h2>
+
+                    <p
+                      className="text-gray-600 text-sm mb-4 line-clamp-3"
+                      itemProp="description"
+                    >
+                      {post.excerpt}
+                    </p>
+
+                    <div className="flex items-center justify-between">
                       <time
-                        itemProp="dateModified"
-                        dateTime={post.updated_at}
-                      ></time>
-                    )}
+                        className="text-xs text-gray-500"
+                        itemProp="datePublished"
+                        dateTime={post.created_at}
+                      >
+                        {new Date(post.created_at).toLocaleDateString('ko-KR')}
+                      </time>
+                      <Link
+                        href={`/blog/${post.slug}`}
+                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                        itemProp="url"
+                        prefetch={true}
+                      >
+                        자세히 보기 →
+                      </Link>
+                    </div>
+
+                    {/* Hidden SEO metadata */}
+                    <div style={{ display: 'none' }}>
+                      <span
+                        itemProp="author"
+                        itemScope
+                        itemType="https://schema.org/Organization"
+                      >
+                        <span itemProp="name">pick.drawyourmind.com</span>
+                      </span>
+                      <span
+                        itemProp="publisher"
+                        itemScope
+                        itemType="https://schema.org/Organization"
+                      >
+                        <span itemProp="name">Pick - 큐레이션 갤러리</span>
+                      </span>
+                      {post.featured_image_url && (
+                        <img
+                          itemProp="image"
+                          src={post.featured_image_url}
+                          alt={post.title}
+                        />
+                      )}
+                      {post.updated_at && (
+                        <time
+                          itemProp="dateModified"
+                          dateTime={post.updated_at}
+                        ></time>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </article>
+                </article>
+
+                {/* 광고 삽입: 3번째와 9번째 카드 다음 */}
+                {(index === 2 || (index > 2 && (index + 1) % 9 === 0)) && (
+                  <div className="bg-white rounded-lg shadow-md overflow-hidden flex items-center justify-center p-6 min-h-[300px]">
+                    <GoogleAd className="w-full h-full" />
+                  </div>
+                )}
+              </Fragment>
             ))}
           </div>
         )}
