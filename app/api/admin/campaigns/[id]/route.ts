@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { getSupabaseAdmin } from '@/lib/supabase'
 
 export async function PATCH(
@@ -57,6 +58,9 @@ export async function PATCH(
       )
     }
 
+    // 캐시 무효화 - 메인 페이지 갱신
+    revalidatePath('/')
+
     return NextResponse.json({
       success: true,
       data
@@ -108,6 +112,9 @@ export async function DELETE(
         { status: 404 }
       )
     }
+
+    // 캐시 무효화 - 메인 페이지 갱신
+    revalidatePath('/')
 
     return NextResponse.json({
       success: true,

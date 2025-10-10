@@ -3,6 +3,9 @@ import { getSupabaseAdmin, Campaign } from '@/lib/supabase';
 import Header from './components/Header';
 import CampaignGrid from './components/CampaignGrid';
 
+// 60초마다 데이터 재검증
+export const revalidate = 60;
+
 // 서버에서 초기 캠페인 데이터를 가져오는 함수
 async function getCampaigns(): Promise<Campaign[]> {
   try {

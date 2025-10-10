@@ -42,7 +42,7 @@ export default function CampaignGrid({
     try {
       setLoading(true);
 
-      // 간단한 세션 저장소 캐싱 (3분)
+      // 간단한 세션 저장소 캐싱 (30초)
       const cacheKey = 'all_campaigns_cache';
       const cacheTimeKey = 'all_campaigns_cache_time';
       const cacheTime = sessionStorage.getItem(cacheTimeKey);
@@ -51,9 +51,9 @@ export default function CampaignGrid({
       if (
         cacheTime &&
         cachedData &&
-        Date.now() - parseInt(cacheTime) < 180000
+        Date.now() - parseInt(cacheTime) < 30000
       ) {
-        // 캐시된 데이터가 3분 이내면 사용
+        // 캐시된 데이터가 30초 이내면 사용
         const campaigns = JSON.parse(cachedData);
         setAllCampaigns(campaigns);
         filterCampaigns(campaigns, selectedCategory);
