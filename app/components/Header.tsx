@@ -9,7 +9,7 @@ export default function Header() {
   const pathname = usePathname();
 
   const getPageTitle = () => {
-    if (pathname?.startsWith('/curation')) return '큐레이션';
+    if (pathname?.startsWith('/curation')) return '기획전';
     if (pathname?.startsWith('/blog')) return '블로그';
     if (pathname?.startsWith('/admin')) return '관리자 모드';
     return '';
@@ -21,7 +21,7 @@ export default function Header() {
     <header className="bg-white shadow-sm border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1 md:gap-3">
             <Link
               href="/"
               className="flex items-center gap-1 hover:opacity-80 transition-opacity"
@@ -43,7 +43,7 @@ export default function Header() {
               href="/curation"
               className="text-sm text-gray-600 hover:text-gray-900 font-medium"
             >
-              큐레이션
+              기획전
             </Link>
             <Link
               href="/blog"
