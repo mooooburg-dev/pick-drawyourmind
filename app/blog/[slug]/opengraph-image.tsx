@@ -22,7 +22,7 @@ async function getBlogPost(slug: string) {
       process.env.NEXT_PUBLIC_SITE_URL ||
       (process.env.NODE_ENV === 'production'
         ? 'https://pick-drawyourmind.vercel.app'
-        : 'http://localhost:3002');
+        : 'http://localhost:3000');
 
     const response = await fetch(`${baseUrl}/api/blog/${slug}`);
     if (!response.ok) return null;

@@ -359,7 +359,7 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
                 itemScope
                 itemType="https://schema.org/Organization"
               >
-                <span itemProp="name">Pick Team</span>
+                <span itemProp="name">pick.drawyourmind.com</span>
                 <span itemProp="url">https://pick.drawyourmind.com</span>
               </span>
               <span
