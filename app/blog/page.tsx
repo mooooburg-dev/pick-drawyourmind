@@ -10,7 +10,7 @@ async function getBlogPosts(): Promise<BlogPost[]> {
       process.env.NEXT_PUBLIC_SITE_URL ||
       (process.env.NODE_ENV === 'production'
         ? 'https://pick-drawyourmind.vercel.app'
-        : 'http://localhost:3002');
+        : 'http://localhost:3000');
 
     const response = await fetch(`${baseUrl}/api/blog`, {
       next: {
@@ -200,7 +200,7 @@ export default async function BlogPage() {
                       itemScope
                       itemType="https://schema.org/Organization"
                     >
-                      <span itemProp="name">Pick Team</span>
+                      <span itemProp="name">pick.drawyourmind.com</span>
                     </span>
                     <span
                       itemProp="publisher"

@@ -32,8 +32,8 @@ export const metadata: Metadata = {
     '세일',
     '특가정보',
   ],
-  authors: [{ name: 'Pick Team' }],
-  creator: 'Pick Team',
+  authors: [{ name: 'pick.drawyourmind.com' }],
+  creator: 'pick.drawyourmind.com',
   publisher: 'Pick - 기획전 갤러리',
   formatDetection: {
     email: false,

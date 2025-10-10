@@ -166,7 +166,6 @@ export default function CampaignGrid({
         eventType === 'campaigns' ||
         eventType === 'content'
       ) {
-        console.log('캐시 무효화 감지, 기획전 데이터 새로고침 중...');
         fetchAllCampaigns();
       }
     });

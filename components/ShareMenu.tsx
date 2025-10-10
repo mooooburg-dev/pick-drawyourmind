@@ -101,7 +101,11 @@ export default function ShareMenu({
       }
 
       // TinyURL API 사용
-      const response = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(originalUrl)}`);
+      const response = await fetch(
+        `https://tinyurl.com/api-create.php?url=${encodeURIComponent(
+          originalUrl
+        )}`
+      );
       const shortUrl = await response.text();
 
       if (shortUrl && shortUrl.startsWith('http')) {
@@ -121,7 +125,7 @@ export default function ShareMenu({
 
   const handleShare = async (platform: string) => {
     // 공유용 URL 준비 (단축 URL 사용)
-    const shareUrl = shortUrl || await shortenUrl(url);
+    const shareUrl = shortUrl || (await shortenUrl(url));
 
     switch (platform) {
       case 'copy':
@@ -227,10 +231,29 @@ export default function ShareMenu({
         <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10">
           {/* URL 단축 정보 */}
           {shortUrl && shortUrl !== url && (
-            <div className="px-4 py-2 border-b border-gray-100 mb-2">
+            <div
+              className="px-4 py-2 border-b border-gray-100 mb-2 cursor-pointer hover:bg-gray-50 transition-colors"
+              onClick={async () => {
+                try {
+                  await navigator.clipboard.writeText(shortUrl);
+                  onCopySuccess?.();
+                } catch (error) {
+                  console.error('URL 복사 실패:', error);
+                }
+              }}
+              title="클릭하여 복사"
+            >
               <div className="flex items-center gap-2 text-xs text-green-600">
-                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                <svg
+                  className="w-3 h-3"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                    clipRule="evenodd"
+                  />
                 </svg>
                 <span>단축 URL 준비완료</span>
               </div>

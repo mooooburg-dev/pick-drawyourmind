@@ -72,7 +72,7 @@ export async function PATCH(
       try {
         revalidateTag(`blog-${data.slug}`)
       } catch (error) {
-        console.log('Cache revalidation failed:', error)
+        // 캐시 무효화 실패는 무시
       }
     }
 
@@ -139,7 +139,7 @@ export async function DELETE(
       try {
         revalidateTag(`blog-${data.slug}`)
       } catch (error) {
-        console.log('Cache revalidation failed:', error)
+        // 캐시 무효화 실패는 무시
       }
     }
 
