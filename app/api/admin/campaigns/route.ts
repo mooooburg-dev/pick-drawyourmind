@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { generateBlogPost, generateSlug } from '@/lib/openai-blog-generator';
 
@@ -126,6 +127,10 @@ export async function POST(request: NextRequest) {
       console.error('블로그 포스트 생성 중 오류:', error);
       // OpenAI 오류가 발생해도 기획전 등록은 성공으로 처리
     }
+
+    // 캐시 무효화 - 메인 페이지와 블로그 페이지 갱신
+    revalidatePath('/');
+    revalidatePath('/blog');
 
     return NextResponse.json({
       success: true,
