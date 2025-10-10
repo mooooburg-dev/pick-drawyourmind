@@ -98,7 +98,7 @@ export default async function BlogPage() {
               href="/"
               className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
             >
-              갤러리로 돌아가기
+              큐레이션 갤러리
             </Link>
           </div>
         </div>
