@@ -48,11 +48,7 @@ export default function CampaignGrid({
       const cacheTime = sessionStorage.getItem(cacheTimeKey);
       const cachedData = sessionStorage.getItem(cacheKey);
 
-      if (
-        cacheTime &&
-        cachedData &&
-        Date.now() - parseInt(cacheTime) < 30000
-      ) {
+      if (cacheTime && cachedData && Date.now() - parseInt(cacheTime) < 30000) {
         // 캐시된 데이터가 30초 이내면 사용
         const campaigns = JSON.parse(cachedData);
         setAllCampaigns(campaigns);
@@ -243,7 +239,7 @@ export default function CampaignGrid({
           <>
             {/* Campaign Grid */}
             <div
-              className={`grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 transition-opacity duration-200 ${
+              className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 transition-opacity duration-200 ${
                 filtering ? 'opacity-50' : 'opacity-100'
               }`}
             >
