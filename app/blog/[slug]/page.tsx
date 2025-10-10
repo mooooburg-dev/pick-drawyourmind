@@ -67,6 +67,11 @@ export async function generateMetadata({
     post.excerpt ||
     `${post.campaigns?.title || '특가 상품'}을 확인해보세요!`;
 
+  // Base URL을 일관되게 설정
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com';
+  const pageUrl = `${baseUrl}/blog/${slug}`;
+
   // Image URL with proper fallback
   const getImageUrl = () => {
     if (post.featured_image_url) {
@@ -74,16 +79,15 @@ export async function generateMetadata({
       if (post.featured_image_url.startsWith('http')) {
         return post.featured_image_url;
       }
-      return `${
-        process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com'
-      }${post.featured_image_url}`;
+      return `${baseUrl}${post.featured_image_url}`;
     }
 
     if (post.campaigns?.image_url) {
       return post.campaigns.image_url;
     }
 
-    return '/default-og-image.svg';
+    // 기본 이미지도 절대 URL로
+    return `${baseUrl}/default-og-image.svg`;
   };
 
   const imageUrl = getImageUrl();
@@ -102,6 +106,7 @@ export async function generateMetadata({
       title,
       description,
       type: 'article',
+      url: pageUrl,
       publishedTime: post.created_at,
       modifiedTime: post.updated_at || post.created_at,
       authors: ['Pick Team'],
@@ -136,7 +141,7 @@ export async function generateMetadata({
       },
     },
     alternates: {
-      canonical: `/blog/${slug}`,
+      canonical: pageUrl,
     },
   };
 }
