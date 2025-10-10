@@ -547,6 +547,17 @@ export default function AdminPage() {
                             <option value="뷰티">뷰티</option>
                             <option value="전자제품">전자제품</option>
                             <option value="홈리빙">홈리빙</option>
+                            <option value="식품">식품</option>
+                            <option value="출산육아">출산육아</option>
+                            <option value="생활용품">생활용품</option>
+                            <option value="가구">가구</option>
+                            <option value="주방용품">주방용품</option>
+                            <option value="문구">문구</option>
+                            <option value="책">책</option>
+                            <option value="아동">아동</option>
+                            <option value="명품">명품</option>
+                            <option value="스포츠">스포츠</option>
+                            <option value="기타">기타</option>
                           </select>
                         </div>
                       </div>
