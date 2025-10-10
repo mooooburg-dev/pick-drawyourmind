@@ -5,6 +5,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { BlogPost, Campaign } from '@/lib/supabase';
 import ShareMenu from '@/components/ShareMenu';
+import GoogleAd from '@/components/GoogleAd';
 
 interface BlogPostWithCampaign extends BlogPost {
   campaigns?: Campaign;
@@ -385,6 +386,9 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
               )}
             </div>
           </div>
+
+          {/* Google AdSense */}
+          <GoogleAd className="my-8" />
 
           {/* CTA Section */}
           {post.campaigns && (
