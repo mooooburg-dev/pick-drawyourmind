@@ -270,6 +270,14 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
           {/* Google AdSense */}
           <GoogleAd className="my-8" />
 
+          {/* 쿠팡 파트너스 안내문 */}
+          <div className="bg-gray-100 rounded-lg shadow-sm md:p-8 mb-8 relative">
+            <p>
+              이 포스팅은 쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의
+              수수료를 제공받을 수 있습니다.
+            </p>
+          </div>
+
           {/* Content */}
           <div className="bg-white rounded-lg shadow-sm p-4 md:p-8 mb-8 relative">
             {/* Action Buttons */}

@@ -80,6 +80,11 @@ export default async function Home() {
       <footer className="bg-white border-t mt-16 border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-500 text-sm">
+            {/* 쿠팡 파트너스 안내문 */}
+            <p>
+              쿠팡 파트너스 활동의 일환으로, 이에 따른 일정액의 수수료를
+              제공받을 수 있습니다.
+            </p>
             <p>© 2025 Pick. All rights reserved.</p>
           </div>
         </div>
