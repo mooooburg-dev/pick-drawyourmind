@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { Fragment } from 'react';
 import { BlogPost, getSupabase } from '@/lib/supabase';
 import GoogleAd from '@/components/GoogleAd';
+import Header from '../components/Header';
 
 // 60초마다 데이터 재검증
 export const revalidate = 60;
@@ -86,27 +87,11 @@ export default async function BlogPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900">블로그</h1>
-              <p className="text-gray-600 mt-1">최신 기획전 정보와 소식</p>
-            </div>
-            <Link
-              href="/"
-              className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-            >
-              큐레이션 갤러리
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Blog Posts */}
       <main
-        className="container mx-auto px-4 py-8"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
         itemScope
         itemType="https://schema.org/Blog"
       >

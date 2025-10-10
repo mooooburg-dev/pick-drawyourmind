@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { BlogPost, Campaign } from '@/lib/supabase';
 import ShareMenu from '@/components/ShareMenu';
 import GoogleAd from '@/components/GoogleAd';
+import Header from '@/app/components/Header';
 
 interface BlogPostWithCampaign extends BlogPost {
   campaigns?: Campaign;
@@ -174,6 +175,7 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
   if (!post) {
     return (
       <div className="min-h-screen bg-gray-50">
+        <Header />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
@@ -196,20 +198,7 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="container mx-auto px-2 md:px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Link href="/blog" className="text-blue-600 hover:text-blue-800">
-              ← 목록 보기
-            </Link>
-            <span className="text-gray-300">|</span>
-            <Link href="/" className="text-blue-600 hover:text-blue-800">
-              홈으로
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Blog Post */}
       <main className="container mx-auto px-2 md:px-4 py-8">
