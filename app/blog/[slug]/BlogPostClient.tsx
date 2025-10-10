@@ -18,6 +18,7 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
   const [post] = useState<BlogPostWithCampaign | null>(initialPost);
   const [copied, setCopied] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [processedContent, setProcessedContent] = useState<string>('');
 
   const shareUrl = typeof window !== 'undefined' ? window.location.href : '';
 
@@ -27,26 +28,24 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
   };
 
   // 블로그 내용 중간에 파트너스 링크 버튼을 삽입하는 함수
-  const insertPartnerButtons = (
-    content: string,
-    partnerLink: string,
-    campaignTitle: string
-  ) => {
-    if (!content || !partnerLink) return content;
+  const insertPartnerButtons = useCallback(
+    (content: string, partnerLink: string, campaignTitle: string) => {
+      if (!content || !partnerLink) return content;
+      if (typeof window === 'undefined') return content; // 서버에서는 원본 반환
 
-    // HTML을 파싱해서 적절한 위치 찾기
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(content, 'text/html');
-    const paragraphs = doc.querySelectorAll('p, h2, h3');
+      // HTML을 파싱해서 적절한 위치 찾기
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, 'text/html');
+      const paragraphs = doc.querySelectorAll('p, h2, h3');
 
-    if (paragraphs.length < 3) return content; // 너무 짧은 글은 버튼 삽입 안함
+      if (paragraphs.length < 3) return content; // 너무 짧은 글은 버튼 삽입 안함
 
-    // 첫 번째 버튼: 전체 길이의 1/3 지점
-    const firstButtonIndex = Math.floor(paragraphs.length / 3);
-    // 두 번째 버튼: 전체 길이의 2/3 지점
-    const secondButtonIndex = Math.floor((paragraphs.length * 2) / 3);
+      // 첫 번째 버튼: 전체 길이의 1/3 지점
+      const firstButtonIndex = Math.floor(paragraphs.length / 3);
+      // 두 번째 버튼: 전체 길이의 2/3 지점
+      const secondButtonIndex = Math.floor((paragraphs.length * 2) / 3);
 
-    const partnerButtonHtml = `
+      const partnerButtonHtml = `
       <div class="my-8 p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100">
         <div class="text-center">
           <div class="mb-4">
@@ -75,26 +74,28 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
       </div>
     `;
 
-    // 첫 번째 버튼 삽입
-    if (paragraphs[firstButtonIndex]) {
-      paragraphs[firstButtonIndex].insertAdjacentHTML(
-        'afterend',
-        partnerButtonHtml
-      );
-    }
+      // 첫 번째 버튼 삽입
+      if (paragraphs[firstButtonIndex]) {
+        paragraphs[firstButtonIndex].insertAdjacentHTML(
+          'afterend',
+          partnerButtonHtml
+        );
+      }
 
-    // 두 번째 버튼 삽입 (인덱스 조정 필요)
-    const updatedParagraphs = doc.querySelectorAll('p, h2, h3');
-    if (updatedParagraphs[secondButtonIndex + 1]) {
-      // +1은 첫 번째 버튼이 추가되었기 때문
-      updatedParagraphs[secondButtonIndex + 1].insertAdjacentHTML(
-        'afterend',
-        partnerButtonHtml
-      );
-    }
+      // 두 번째 버튼 삽입 (인덱스 조정 필요)
+      const updatedParagraphs = doc.querySelectorAll('p, h2, h3');
+      if (updatedParagraphs[secondButtonIndex + 1]) {
+        // +1은 첫 번째 버튼이 추가되었기 때문
+        updatedParagraphs[secondButtonIndex + 1].insertAdjacentHTML(
+          'afterend',
+          partnerButtonHtml
+        );
+      }
 
-    return doc.body.innerHTML;
-  };
+      return doc.body.innerHTML;
+    },
+    []
+  );
 
   useEffect(() => {
     // 관리자 인증 상태 확인
@@ -115,6 +116,20 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
       window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
+
+  useEffect(() => {
+    // 클라이언트에서만 파트너 버튼 삽입
+    if (post?.content && post?.campaigns?.partner_link) {
+      const processed = insertPartnerButtons(
+        post.content,
+        post.campaigns.partner_link,
+        post.campaigns.title
+      );
+      setProcessedContent(processed);
+    } else if (post?.content) {
+      setProcessedContent(post.content);
+    }
+  }, [post, insertPartnerButtons]);
 
   const copyContent = useCallback(async () => {
     if (!post?.content) return;
@@ -333,13 +348,7 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
               className="blog-content"
               itemProp="articleBody"
               dangerouslySetInnerHTML={{
-                __html: post.campaigns?.partner_link
-                  ? insertPartnerButtons(
-                      post.content,
-                      post.campaigns.partner_link,
-                      post.campaigns.title
-                    )
-                  : post.content,
+                __html: processedContent || post.content,
               }}
             />
 

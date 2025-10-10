@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { BlogPost, Campaign } from '@/lib/supabase';
+import { BlogPost, Campaign, getSupabase } from '@/lib/supabase';
 import BlogPostClient from './BlogPostClient';
 
 interface BlogPostWithCampaign extends BlogPost {
@@ -13,34 +13,41 @@ interface BlogPostPageProps {
   }>;
 }
 
-// Server-side data fetching function
+// Server-side data fetching function - Supabase에서 직접 가져오기
 async function getBlogPostData(
   slug: string
 ): Promise<BlogPostWithCampaign | null> {
   try {
-    // Use environment variable or fallback URLs
-    const baseUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      (process.env.NODE_ENV === 'production'
-        ? 'https://pick-drawyourmind.vercel.app'
-        : 'http://localhost:3002');
+    // URL 디코딩 (이미 디코딩되어 있을 수 있지만 명시적으로 처리)
+    const decodedSlug = decodeURIComponent(slug);
+    console.log('Looking for blog post with slug:', decodedSlug);
 
-    const response = await fetch(`${baseUrl}/api/blog/${slug}`, {
-      next: {
-        revalidate: 60, // 1분마다 재검증으로 단축
-        tags: [`blog-${slug}`], // 개별 블로그 포스트 캐시 태그
-      },
-    });
+    const supabase = getSupabase();
 
-    if (!response.ok) {
-      console.error(
-        `Failed to fetch blog post: ${response.status} ${response.statusText}`
-      );
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select(
+        `
+        *,
+        campaigns (*)
+      `
+      )
+      .eq('slug', decodedSlug)
+      .eq('is_published', true)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Supabase error:', error);
       return null;
     }
 
-    const result = await response.json();
-    return result.success ? result.data : null;
+    if (!data) {
+      console.log('No blog post found for slug:', decodedSlug);
+      return null;
+    }
+
+    console.log('Found blog post:', data.title);
+    return data as BlogPostWithCampaign;
   } catch (error) {
     console.error('Failed to fetch blog post:', error);
     return null;
@@ -56,8 +63,7 @@ export async function generateMetadata({
 
   if (!post) {
     return {
-      title: '포스트를 찾을 수 없습니다 | Pick',
-      description: '요청하신 블로그 포스트를 찾을 수 없습니다.',
+      title: '포스트를 찾을 수 없습니다',
     };
   }
 
@@ -67,51 +73,23 @@ export async function generateMetadata({
     post.excerpt ||
     `${post.campaigns?.title || '특가 상품'}을 확인해보세요!`;
 
-  // Base URL을 일관되게 설정
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com';
   const pageUrl = `${baseUrl}/blog/${slug}`;
 
-  // Image URL with proper fallback
-  const getImageUrl = () => {
-    if (post.featured_image_url) {
-      // Validate if it's a full URL, if not make it absolute
-      if (post.featured_image_url.startsWith('http')) {
-        return post.featured_image_url;
-      }
-      return `${baseUrl}${post.featured_image_url}`;
-    }
-
-    if (post.campaigns?.image_url) {
-      return post.campaigns.image_url;
-    }
-
-    // 기본 이미지도 절대 URL로
-    return `${baseUrl}/default-og-image.svg`;
-  };
-
-  const imageUrl = getImageUrl();
-  const keywords = post.tags
-    ? post.tags.join(', ')
-    : '쿠팡, 특가, 쇼핑, 기획전';
+  const imageUrl = post.featured_image_url || post.campaigns?.image_url || `${baseUrl}/default-og-image.svg`;
 
   return {
     title,
     description,
-    keywords: keywords.split(', '),
-    authors: [{ name: 'Pick Team' }],
-    creator: 'Pick Team',
-    publisher: 'Pick - 기획전 갤러리',
+    alternates: {
+      canonical: pageUrl,
+    },
     openGraph: {
       title,
       description,
       type: 'article',
       url: pageUrl,
-      publishedTime: post.created_at,
-      modifiedTime: post.updated_at || post.created_at,
-      authors: ['Pick Team'],
-      section: post.campaigns?.category,
-      tags: post.tags || [],
       images: [
         {
           url: imageUrl,
@@ -127,21 +105,6 @@ export async function generateMetadata({
       title,
       description,
       images: [imageUrl],
-      creator: '@pick_deals',
-    },
-    robots: {
-      index: true,
-      follow: true,
-      googleBot: {
-        index: true,
-        follow: true,
-        'max-video-preview': -1,
-        'max-image-preview': 'large',
-        'max-snippet': -1,
-      },
-    },
-    alternates: {
-      canonical: pageUrl,
     },
   };
 }
