@@ -43,25 +43,9 @@ export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com'
   ),
-  alternates: {
-    canonical: '/',
-  },
   openGraph: {
-    title: 'Pick | 갤러리',
-    description:
-      '최신 기획전과 이벤트를 한눈에! AI가 엄선한 특가 상품 정보를 확인하세요.',
-    url: process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com',
     siteName: 'Pick - 기획전 갤러리',
-    images: [
-      {
-        url: '/api/og',
-        width: 1200,
-        height: 630,
-        alt: 'Pick - 갤러리',
-      },
-    ],
     locale: 'ko_KR',
-    type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
