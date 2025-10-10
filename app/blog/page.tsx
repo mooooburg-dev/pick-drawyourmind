@@ -1,187 +1,89 @@
-'use client';
-
-import { useState, useEffect, useCallback } from 'react';
+import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
 import { BlogPost } from '@/lib/supabase';
-import { addCacheInvalidationListener } from '@/lib/cache-utils';
 
-export default function BlogPage() {
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+// 서버에서 블로그 포스트 데이터를 가져오는 함수
+async function getBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const baseUrl =
+      process.env.NEXT_PUBLIC_SITE_URL ||
+      (process.env.NODE_ENV === 'production'
+        ? 'https://pick-drawyourmind.vercel.app'
+        : 'http://localhost:3002');
 
-  const fetchBlogPosts = useCallback(async () => {
-    try {
-      setLoading(true);
-
-      // 간단한 세션 저장소 캐싱 (2분)
-      const cacheKey = 'blog_posts_cache';
-      const cacheTimeKey = 'blog_posts_cache_time';
-      const cacheTime = sessionStorage.getItem(cacheTimeKey);
-      const cachedData = sessionStorage.getItem(cacheKey);
-
-      if (
-        cacheTime &&
-        cachedData &&
-        Date.now() - parseInt(cacheTime) < 120000
-      ) {
-        // 캐시된 데이터가 2분 이내면 사용
-        setBlogPosts(JSON.parse(cachedData));
-        setError(null);
-        setLoading(false);
-        return;
-      }
-
-      const response = await fetch('/api/blog');
-      const result = await response.json();
-
-      if (result.success) {
-        setBlogPosts(result.data);
-        setError(null);
-
-        // 캐시에 저장
-        sessionStorage.setItem(cacheKey, JSON.stringify(result.data));
-        sessionStorage.setItem(cacheTimeKey, Date.now().toString());
-      } else {
-        setError(result.error || '블로그 포스트를 불러올 수 없습니다.');
-      }
-    } catch (error) {
-      console.error('블로그 포스트 로딩 실패:', error);
-      setError('블로그 포스트를 불러올 수 없습니다.');
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  const updatePageMetadata = useCallback(() => {
-    if (typeof window === 'undefined') return;
-
-    // Update document title
-    document.title = '블로그 - Pick 특가 정보 및 기획전 소식';
-
-    // Update meta description
-    updateMetaTag(
-      'description',
-      'AI가 엄선한 최신 기획전 정보와 특가 상품 리뷰를 확인하세요. 매일 업데이트되는 쇼핑 정보와 할인 혜택을 놓치지 마세요.'
-    );
-
-    // Update keywords
-    updateMetaTag(
-      'keywords',
-      '블로그, 특가정보, 기획전소식, 쿠팡리뷰, 할인정보, 쇼핑가이드, 상품추천, 세일정보'
-    );
-
-    // Open Graph
-    updateMetaTag(
-      'og:title',
-      '블로그 - Pick 특가 정보 및 기획전 소식',
-      'property'
-    );
-    updateMetaTag(
-      'og:description',
-      'AI가 엄선한 최신 기획전 정보와 특가 상품 리뷰를 확인하세요.',
-      'property'
-    );
-    updateMetaTag('og:type', 'website', 'property');
-    updateMetaTag('og:url', window.location.href, 'property');
-
-    // Twitter Card
-    updateMetaTag('twitter:card', 'summary_large_image');
-    updateMetaTag('twitter:title', '블로그 - Pick 특가 정보 및 기획전 소식');
-    updateMetaTag(
-      'twitter:description',
-      'AI가 엄선한 최신 기획전 정보와 특가 상품 리뷰를 확인하세요.'
-    );
-
-    // Canonical URL
-    updateLinkTag('canonical', window.location.href);
-  }, []);
-
-  const updateMetaTag = (
-    name: string,
-    content: string,
-    attribute: string = 'name'
-  ) => {
-    let meta = document.querySelector(
-      `meta[${attribute}="${name}"]`
-    ) as HTMLMetaElement;
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.setAttribute(attribute, name);
-      document.head.appendChild(meta);
-    }
-    meta.content = content;
-  };
-
-  const updateLinkTag = (rel: string, href: string) => {
-    let link = document.querySelector(`link[rel="${rel}"]`) as HTMLLinkElement;
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = rel;
-      document.head.appendChild(link);
-    }
-    link.href = href;
-  };
-
-  useEffect(() => {
-    fetchBlogPosts();
-    // Update page metadata for SEO
-    updatePageMetadata();
-  }, [fetchBlogPosts, updatePageMetadata]);
-
-  // 캐시 무효화 이벤트 감지하여 데이터 새로고침
-  useEffect(() => {
-    const cleanup = addCacheInvalidationListener((eventType) => {
-      if (
-        eventType === 'all' ||
-        eventType === 'blog' ||
-        eventType === 'content'
-      ) {
-        console.log('캐시 무효화 감지, 블로그 데이터 새로고침 중...');
-        fetchBlogPosts();
-      }
+    const response = await fetch(`${baseUrl}/api/blog`, {
+      next: {
+        revalidate: 60, // 1분마다 재검증
+        tags: ['blog-list'],
+      },
     });
 
-    return cleanup;
-  }, [fetchBlogPosts]);
+    if (!response.ok) {
+      console.error('Failed to fetch blog posts:', response.status);
+      return [];
+    }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-            <p className="mt-2 text-gray-500">블로그 포스트를 불러오는 중...</p>
-          </div>
-        </div>
-      </div>
-    );
+    const result = await response.json();
+    return result.success ? result.data : [];
+  } catch (error) {
+    console.error('Failed to fetch blog posts:', error);
+    return [];
   }
+}
 
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">블로그</h1>
-            <div className="bg-red-50 border border-red-200 rounded-md p-4 max-w-md mx-auto">
-              <p className="text-red-600">{error}</p>
-              <p className="text-sm text-red-500 mt-2">
-                Supabase에서 blog_posts 테이블을 생성해주세요.
-              </p>
-              <button
-                onClick={fetchBlogPosts}
-                className="mt-4 bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm"
-              >
-                다시 시도
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+// 메타데이터 생성
+export async function generateMetadata(): Promise<Metadata> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://pick.drawyourmind.com';
+  const pageUrl = `${baseUrl}/blog`;
+
+  return {
+    title: '블로그 - 특가 정보 및 기획전 소식',
+    description:
+      'AI가 엄선한 최신 기획전 정보와 특가 상품 리뷰를 확인하세요. 매일 업데이트되는 쇼핑 정보와 할인 혜택을 놓치지 마세요.',
+    keywords: [
+      '블로그',
+      '특가정보',
+      '기획전소식',
+      '쿠팡리뷰',
+      '할인정보',
+      '쇼핑가이드',
+      '상품추천',
+      '세일정보',
+    ],
+    alternates: {
+      canonical: pageUrl,
+    },
+    openGraph: {
+      title: '블로그 - Pick 특가 정보 및 기획전 소식',
+      description:
+        'AI가 엄선한 최신 기획전 정보와 특가 상품 리뷰를 확인하세요.',
+      type: 'website',
+      url: pageUrl,
+      siteName: 'Pick - 기획전 갤러리',
+      images: [
+        {
+          url: '/api/og',
+          width: 1200,
+          height: 630,
+          alt: 'Pick 블로그',
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: '블로그 - Pick 특가 정보 및 기획전 소식',
+      description:
+        'AI가 엄선한 최신 기획전 정보와 특가 상품 리뷰를 확인하세요.',
+      images: ['/api/og'],
+      creator: '@pick_deals',
+    },
+  };
+}
+
+export default async function BlogPage() {
+  const blogPosts = await getBlogPosts();
 
   return (
     <div className="min-h-screen bg-gray-50">
