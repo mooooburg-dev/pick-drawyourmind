@@ -1,31 +1,25 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { BlogPost } from '@/lib/supabase';
+import { BlogPost, getSupabase } from '@/lib/supabase';
 
-// 서버에서 블로그 포스트 데이터를 가져오는 함수
+// 서버에서 블로그 포스트 데이터를 가져오는 함수 - Supabase에서 직접 가져오기
 async function getBlogPosts(): Promise<BlogPost[]> {
   try {
-    const baseUrl =
-      process.env.NEXT_PUBLIC_SITE_URL ||
-      (process.env.NODE_ENV === 'production'
-        ? 'https://pick-drawyourmind.vercel.app'
-        : 'http://localhost:3000');
+    const supabase = getSupabase();
 
-    const response = await fetch(`${baseUrl}/api/blog`, {
-      next: {
-        revalidate: 60, // 1분마다 재검증
-        tags: ['blog-list'],
-      },
-    });
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('*')
+      .eq('is_published', true)
+      .order('created_at', { ascending: false });
 
-    if (!response.ok) {
-      console.error('Failed to fetch blog posts:', response.status);
+    if (error) {
+      console.error('Supabase error:', error);
       return [];
     }
 
-    const result = await response.json();
-    return result.success ? result.data : [];
+    return (data as BlogPost[]) || [];
   } catch (error) {
     console.error('Failed to fetch blog posts:', error);
     return [];
