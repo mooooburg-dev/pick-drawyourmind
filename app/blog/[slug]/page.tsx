@@ -20,7 +20,6 @@ async function getBlogPostData(
   try {
     // URL 디코딩 (이미 디코딩되어 있을 수 있지만 명시적으로 처리)
     const decodedSlug = decodeURIComponent(slug);
-    console.log('Looking for blog post with slug:', decodedSlug);
 
     const supabase = getSupabase();
 
@@ -42,11 +41,9 @@ async function getBlogPostData(
     }
 
     if (!data) {
-      console.log('No blog post found for slug:', decodedSlug);
       return null;
     }
 
-    console.log('Found blog post:', data.title);
     return data as BlogPostWithCampaign;
   } catch (error) {
     console.error('Failed to fetch blog post:', error);
@@ -79,9 +76,15 @@ export async function generateMetadata({
 
   const imageUrl = post.featured_image_url || post.campaigns?.image_url || `${baseUrl}/default-og-image.svg`;
 
+  const keywords = post.tags || ['기획전', '쇼핑', '특가', '할인'];
+
   return {
     title,
     description,
+    keywords,
+    authors: [{ name: 'pick.drawyourmind.com', url: baseUrl }],
+    creator: 'pick.drawyourmind.com',
+    publisher: 'Pick - 기획전 갤러리',
     alternates: {
       canonical: pageUrl,
     },
@@ -90,21 +93,42 @@ export async function generateMetadata({
       description,
       type: 'article',
       url: pageUrl,
+      siteName: 'Pick - 기획전 갤러리',
+      locale: 'ko_KR',
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at || post.created_at,
+      authors: ['pick.drawyourmind.com'],
+      section: post.campaigns?.category || '기획전',
+      tags: post.tags || [],
       images: [
         {
           url: imageUrl,
           width: 1200,
           height: 630,
           alt: title,
+          type: 'image/png',
         },
       ],
-      siteName: 'Pick - 기획전 갤러리',
     },
     twitter: {
       card: 'summary_large_image',
       title,
       description,
       images: [imageUrl],
+      creator: '@pick_deals',
+      site: '@pick_deals',
+    },
+    robots: {
+      index: true,
+      follow: true,
+      nocache: false,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
   };
 }

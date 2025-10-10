@@ -92,14 +92,8 @@ export async function POST(request: NextRequest) {
 
     // OpenAI를 사용해서 이미지 생성 및 블로그 포스트 자동 생성
     try {
-      console.log(
-        'OpenAI 이미지 및 블로그 포스트 생성 시작...',
-        campaignData.title
-      );
-
       // 콘텐츠용 이미지 2개 생성
       const { image1, image2 } = await generateContentImages(category);
-      console.log('콘텐츠 이미지 생성 완료');
 
       // 이미지 URL을 포함해서 블로그 포스트 생성
       const blogContent = await generateBlogPost(campaignData);
@@ -127,8 +121,6 @@ export async function POST(request: NextRequest) {
       if (blogError) {
         console.error('Blog post database error:', blogError);
         // 블로그 포스트 생성 실패해도 기획전은 성공으로 처리
-      } else {
-        console.log('블로그 포스트 생성 완료:', blogData.slug);
       }
     } catch (error) {
       console.error('블로그 포스트 생성 중 오류:', error);
