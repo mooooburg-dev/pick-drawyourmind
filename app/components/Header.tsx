@@ -15,7 +15,15 @@ export default function Header() {
     return '';
   };
 
+  const getPagePath = () => {
+    if (pathname?.startsWith('/curation')) return '/curation';
+    if (pathname?.startsWith('/blog')) return '/blog';
+    if (pathname?.startsWith('/admin')) return '/admin';
+    return '/';
+  };
+
   const pageTitle = getPageTitle();
+  const pagePath = getPagePath();
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -32,9 +40,12 @@ export default function Header() {
             {pageTitle && (
               <>
                 <span className="text-gray-300">|</span>
-                <span className="text-lg font-medium text-gray-700">
+                <Link
+                  href={pagePath}
+                  className="text-lg font-medium text-gray-700 hover:text-gray-900 transition-colors cursor-pointer"
+                >
                   {pageTitle}
-                </span>
+                </Link>
               </>
             )}
           </div>
