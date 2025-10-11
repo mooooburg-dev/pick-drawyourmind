@@ -70,7 +70,7 @@ export const metadata: Metadata = {
   verification: {
     google: 'google-site-verification-code',
     other: {
-      'naver-site-verification': 'naver-verification-code',
+      'naver-site-verification': '4691df5c600809ae466538729e29024f0fce7cb6',
     },
   },
 };
