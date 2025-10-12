@@ -4,7 +4,10 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { Campaign, BlogPost } from '@/lib/supabase';
-import { clearContentCache, handleApiCacheInvalidation } from '@/lib/cache-utils';
+import {
+  clearContentCache,
+  handleApiCacheInvalidation,
+} from '@/lib/cache-utils';
 
 // TinyMCE 에디터를 동적으로 로드 (SSR 방지)
 const Editor = dynamic(
@@ -1227,34 +1230,6 @@ function BlogManagement({
       'table',
       'visualblocks',
       'wordcount',
-
-      // 프리미엄 기능 (2025년 10월 2일까지 무료 체험)
-      'checklist',
-      'mediaembed',
-      'casechange',
-      'formatpainter',
-      'pageembed',
-      'a11ychecker',
-      'tinymcespellchecker',
-      'permanentpen',
-      'powerpaste',
-      'advtable',
-      'advcode',
-      'advtemplate',
-      'ai',
-      'uploadcare',
-      'mentions',
-      'tinycomments',
-      'tableofcontents',
-      'footnotes',
-      'mergetags',
-      'autocorrect',
-      'typography',
-      'inlinecss',
-      'markdown',
-      'importword',
-      'exportword',
-      'exportpdf',
     ],
 
     // 향상된 툴바
