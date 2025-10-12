@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
+import { useRouter } from 'next/navigation';
 import { Campaign, BlogPost } from '@/lib/supabase';
 import {
   clearContentCache,
@@ -27,6 +28,7 @@ interface BlogPostWithCampaign extends BlogPost {
 }
 
 export default function AdminPage() {
+  const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [activeTab, setActiveTab] = useState<'campaigns' | 'blogs'>(
@@ -323,10 +325,10 @@ export default function AdminPage() {
 
         // 저장 후 작성한 블로그 포스트 상세 페이지로 이동
         if (editingPost.slug) {
-          window.location.href = `/blog/${editingPost.slug}`;
+          router.push(`/blog/${editingPost.slug}`);
         } else {
           // slug가 없는 경우 ID로 이동
-          window.location.href = `/blog/${editingPost.id}`;
+          router.push(`/blog/${editingPost.id}`);
         }
       } else {
         alert('수정 실패: ' + result.error);
@@ -410,7 +412,7 @@ export default function AdminPage() {
             </div>
             <div className="flex items-center space-x-4">
               <button
-                onClick={() => (window.location.href = '/')}
+                onClick={() => router.push('/')}
                 className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md text-sm"
               >
                 홈으로
@@ -1154,6 +1156,7 @@ export default function AdminPage() {
             onSavePost={handleSaveBlogPost}
             onDeletePost={handleDeleteBlogPost}
             onCancelEdit={() => setEditingPost(null)}
+            router={router}
           />
         )}
       </main>
@@ -1170,6 +1173,7 @@ function BlogManagement({
   onSavePost,
   onDeletePost,
   onCancelEdit,
+  router,
 }: {
   blogPosts: BlogPostWithCampaign[];
   blogLoading: boolean;
@@ -1178,6 +1182,7 @@ function BlogManagement({
   onSavePost: (post: Partial<BlogPostWithCampaign>) => void;
   onDeletePost: (id: string) => void;
   onCancelEdit: () => void;
+  router: ReturnType<typeof useRouter>;
 }) {
   const [editForm, setEditForm] = useState({
     title: '',
@@ -1490,9 +1495,7 @@ function BlogManagement({
                       수정
                     </button>
                     <button
-                      onClick={() =>
-                        (window.location.href = `/blog/${post.slug}`)
-                      }
+                      onClick={() => router.push(`/blog/${post.slug}`)}
                       className="text-green-600 hover:text-green-900 mr-3"
                     >
                       보기

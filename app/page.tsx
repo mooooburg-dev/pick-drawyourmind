@@ -58,7 +58,7 @@ export default function Home() {
               href="/curation"
               className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-md font-medium"
             >
-              큐레이션 갤러리 보기
+              기획전 갤러리 보기
             </Link>
             <Link
               href="/blog"
