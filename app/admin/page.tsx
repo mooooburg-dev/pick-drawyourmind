@@ -323,10 +323,10 @@ export default function AdminPage() {
 
         // 저장 후 작성한 블로그 포스트 상세 페이지로 이동
         if (editingPost.slug) {
-          window.open(`/blog/${editingPost.slug}`, '_blank');
+          window.location.href = `/blog/${editingPost.slug}`;
         } else {
           // slug가 없는 경우 ID로 이동
-          window.open(`/blog/${editingPost.id}`, '_blank');
+          window.location.href = `/blog/${editingPost.id}`;
         }
       } else {
         alert('수정 실패: ' + result.error);
@@ -1491,7 +1491,7 @@ function BlogManagement({
                     </button>
                     <button
                       onClick={() =>
-                        window.open(`/blog/${post.slug}`, '_blank')
+                        (window.location.href = `/blog/${post.slug}`)
                       }
                       className="text-green-600 hover:text-green-900 mr-3"
                     >
