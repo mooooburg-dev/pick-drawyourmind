@@ -191,7 +191,7 @@ export default async function BlogPage() {
                         itemScope
                         itemType="https://schema.org/Organization"
                       >
-                        <span itemProp="name">Pick - 큐레이션 갤러리</span>
+                        <span itemProp="name">Pick - 기획전 갤러리</span>
                       </span>
                       {post.featured_image_url && (
                         <img

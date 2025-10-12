@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import { BlogPost, Campaign } from '@/lib/supabase';
 import ShareMenu from '@/components/ShareMenu';
 import GoogleAd from '@/components/GoogleAd';
@@ -17,6 +18,7 @@ interface BlogPostClientProps {
 }
 
 export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
+  const router = useRouter();
   const [post] = useState<BlogPostWithCampaign | null>(initialPost);
   const [copied, setCopied] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -169,8 +171,8 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
 
     // 관리자 페이지의 블로그 관리 탭으로 이동하면서 해당 포스트 편집 모드로 설정
     const editUrl = `/admin?tab=blogs&edit=${post.id}`;
-    window.open(editUrl, '_blank');
-  }, [post?.id]);
+    router.push(editUrl);
+  }, [post?.id, router]);
 
   if (!post) {
     return (
