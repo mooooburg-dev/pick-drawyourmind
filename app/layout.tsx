@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import Script from 'next/script';
+import WebVitals from '@/components/WebVitals';
 import './globals.css';
 
 const geistSans = Geist({
@@ -82,6 +83,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
+      <head>
+        {/* Preconnect to critical third-party origins */}
+        <link rel="preconnect" href="https://www.googletagmanager.com" />
+        <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+
+        {/* DNS-prefetch for image domains */}
+        <link rel="dns-prefetch" href="https://imgnews.pstatic.net" />
+        <link rel="dns-prefetch" href="https://oaidalleapiprodscus.blob.core.windows.net" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
@@ -107,6 +118,10 @@ export default function RootLayout({
           crossOrigin="anonymous"
           strategy="afterInteractive"
         />
+
+        {/* Web Vitals 모니터링 */}
+        <WebVitals />
+
         {children}
       </body>
     </html>
