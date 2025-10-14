@@ -83,7 +83,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ko">
-      <head>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+      >
         {/* Preconnect to critical third-party origins */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://pagead2.googlesyndication.com" />
@@ -91,11 +93,11 @@ export default function RootLayout({
 
         {/* DNS-prefetch for image domains */}
         <link rel="dns-prefetch" href="https://imgnews.pstatic.net" />
-        <link rel="dns-prefetch" href="https://oaidalleapiprodscus.blob.core.windows.net" />
-      </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+        <link
+          rel="dns-prefetch"
+          href="https://oaidalleapiprodscus.blob.core.windows.net"
+        />
+
         {/* Google Analytics */}
         <Script
           async
