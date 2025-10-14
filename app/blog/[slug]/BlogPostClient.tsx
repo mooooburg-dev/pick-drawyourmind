@@ -4,10 +4,24 @@ import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { BlogPost, Campaign } from '@/lib/supabase';
-import ShareMenu from '@/components/ShareMenu';
-import GoogleAd from '@/components/GoogleAd';
 import Header from '@/app/components/Header';
+
+// 동적 임포트로 무거운 컴포넌트 지연 로딩
+const ShareMenu = dynamic(() => import('@/components/ShareMenu'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-10 h-10 animate-pulse bg-blue-100 rounded-md" />
+  ),
+});
+
+const GoogleAd = dynamic(() => import('@/components/GoogleAd'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-24 animate-pulse bg-gray-100 rounded-md" />
+  ),
+});
 
 interface BlogPostWithCampaign extends BlogPost {
   campaigns?: Campaign;
@@ -214,6 +228,7 @@ export default function BlogPostClient({ initialPost }: BlogPostClientProps) {
                 fill
                 className="object-cover"
                 sizes="(max-width: 1024px) 100vw, 1024px"
+                priority
               />
             </div>
           )}

@@ -226,7 +226,7 @@ export default function CampaignGrid({
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {loading ? (
           <div className="flex justify-center items-center h-64">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+            <div className="rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
           </div>
         ) : filteredCampaigns.length === 0 ? (
           <div className="text-center py-12">
@@ -243,8 +243,12 @@ export default function CampaignGrid({
                 filtering ? 'opacity-50' : 'opacity-100'
               }`}
             >
-              {filteredCampaigns.map((campaign) => (
-                <CampaignCard key={campaign.id} campaign={campaign} />
+              {filteredCampaigns.map((campaign, index) => (
+                <CampaignCard
+                  key={campaign.id}
+                  campaign={campaign}
+                  priority={index < 6}
+                />
               ))}
             </div>
 
@@ -271,7 +275,13 @@ export default function CampaignGrid({
   );
 }
 
-function CampaignCard({ campaign }: { campaign: Campaign }) {
+function CampaignCard({
+  campaign,
+  priority = false,
+}: {
+  campaign: Campaign;
+  priority?: boolean;
+}) {
   const handleClick = () => {
     // 링크로 직접 이동
     window.open(campaign.partner_link, '_blank', 'noopener,noreferrer');
@@ -289,6 +299,8 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
           fill
           className="object-cover"
           sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1024px) 33vw, (max-width: 1280px) 25vw, 20vw"
+          priority={priority}
+          loading={priority ? undefined : 'lazy'}
         />
       </div>
       <div className="p-4">

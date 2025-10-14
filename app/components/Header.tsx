@@ -34,7 +34,13 @@ export default function Header() {
               href="/"
               className="flex items-center gap-1 hover:opacity-80 transition-opacity"
             >
-              <Image src="/mondaypick.png" alt="Pick" width={32} height={32} />
+              <Image
+                src="/mondaypick.png"
+                alt="Pick"
+                width={32}
+                height={32}
+                priority
+              />
               <h1 className="text-2xl font-bold text-gray-900">Pick</h1>
             </Link>
             {pageTitle && (
